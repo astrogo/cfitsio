@@ -11,12 +11,7 @@ import (
 	"unsafe"
 )
 
-func Version() float32 {
-	v := C.float(0)
-	C.ffvers(&v)
-	return float32(v)
-}
-
+// Return a descriptive text string (30 char max.) corresponding to a CFITSIO error status code.
 func to_err(sc C.int) error {
 	c_err := C.char_buf_array(C.FLEN_ERRMSG)
 	defer C.free(unsafe.Pointer(c_err))
@@ -24,4 +19,5 @@ func to_err(sc C.int) error {
 	err := fmt.Errorf("%s", C.GoString(c_err))
 	return err
 }
+
 // eof

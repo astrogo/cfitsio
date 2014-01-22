@@ -90,4 +90,26 @@ func (f *File) HduType() (HduType, error) {
 	return HduType(c_hdu), nil
 }
 
+// Copy all or part of the HDUs in the FITS file associated with infptr and append them to the end of the FITS file associated with outfptr. If 'previous' is true, then any HDUs preceding the current HDU in the input file will be copied to the output file. Similarly, 'current' and 'following' determine whether the current HDU, and/or any following HDUs in the input file will be copied to the output file. Thus, if all 3 parameters are true, then the entire input file will be copied. On exit, the current HDU in the input file will be unchanged, and the last HDU in the output file will be the current HDU.
+func (f *File) Copy(out *File, previous, current, following bool) error {
+	c_previous := C.int(0)
+	if previous {
+		c_previous = C.int(1)
+	}
+	c_current := C.int(0)
+	if current {
+		c_current = C.int(1)
+	}
+	c_following := C.int(0)
+	if following {
+		c_following = C.int(1)
+	}
+	c_status := C.int(0)
+	C.fits_copy_file(f.c, out.c, c_previous, c_current, c_following, &c_status)
+	if c_status > 0 {
+		return to_err(c_status)
+	}
+	return nil
+}
+
 // EOF

@@ -145,7 +145,12 @@ func (f *File) WriteHdu(w io.Writer) error {
 		return to_err(c_status)
 	}
 	C.fflush(fstream)
-	tmp.Seek(0, 0)
+
+	_, err = tmp.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
 	_, err = io.Copy(w, tmp)
 	return err
 }

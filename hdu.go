@@ -165,4 +165,15 @@ func (f *File) CopyHeader(out *File) error {
 	return nil
 }
 
+// Delete the CHDU in the FITS file. Any following HDUs will be shifted forward in the file, to fill in the gap created by the deleted HDU. In the case of deleting the primary array (the first HDU in the file) then the current primary array will be replace by a null primary array containing the minimum set of required keywords and no data. If there are more extensions in the file following the one that is deleted, then the the CHDU will be redefined to point to the following extension. If there are no following extensions then the CHDU will be redefined to point to the previous HDU. The output hdutype parameter returns the type of the new CHDU. A null pointer may be given for hdutype if the returned value is not needed.
+func (f *File) DeleteHdu() (HduType, error) {
+	c_hdu := C.int(0)
+	c_status := C.int(0)
+	C.fits_delete_hdu(f.c, &c_hdu, &c_status)
+	if c_status > 0 {
+		return 0, to_err(c_status)
+	}
+	return HduType(c_hdu), nil
+}
+
 // EOF

@@ -1,8 +1,8 @@
 package cfitsio
 
-// #include "fitsio.h"
 // #include <stdlib.h>
 // #include <string.h>
+// #include "go-cfitsio.h"
 // #include "go-cfitsio-utils.h"
 import "C"
 

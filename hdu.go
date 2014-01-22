@@ -112,4 +112,15 @@ func (f *File) Copy(out *File, previous, current, following bool) error {
 	return nil
 }
 
+// Copy the current HDU from the FITS file associated with infptr and append it to the end of the FITS file associated with outfptr. Space may be reserved for MOREKEYS additional keywords in the output header.
+func (f *File) CopyHdu(out *File, morekeys int) error {
+	c_morekeys := C.int(morekeys)
+	c_status := C.int(0)
+	C.fits_copy_hdu(f.c, out.c, c_morekeys, &c_status)
+	if c_status > 0 {
+		return to_err(c_status)
+	}
+	return nil
+}
+
 // EOF

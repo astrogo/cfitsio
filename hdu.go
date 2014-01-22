@@ -18,8 +18,8 @@ const (
 	AnyHdy    HduType = C.ANY_HDU    // matches any HDU type
 )
 
-// MoveAbsHdu moves to a different HDU in the file
-func (f *File) MoveAbsHdu(hdu int) (HduType, error) {
+// MovAbsHdu moves to a different HDU in the file
+func (f *File) MovAbsHdu(hdu int) (HduType, error) {
 	c_hdu := C.int(hdu)
 	c_htype := C.int(0)
 	c_status := C.int(0)
@@ -32,8 +32,8 @@ func (f *File) MoveAbsHdu(hdu int) (HduType, error) {
 	return HduType(c_htype), nil
 }
 
-// MoveRelHdu moves to a different HDU in the file
-func (f *File) MoveRelHdu(n int) (HduType, error) {
+// MovRelHdu moves to a different HDU in the file
+func (f *File) MovRelHdu(n int) (HduType, error) {
 	c_n := C.int(n)
 	c_htype := C.int(0)
 	c_status := C.int(0)
@@ -46,8 +46,8 @@ func (f *File) MoveRelHdu(n int) (HduType, error) {
 	return HduType(c_htype), nil
 }
 
-// MoveNamHdu moves to a different HDU in the file
-func (f *File) MoveNamHdu(hdu HduType, extname string, extvers int) error {
+// MovNamHdu moves to a different HDU in the file
+func (f *File) MovNamHdu(hdu HduType, extname string, extvers int) error {
 	c_hdu := C.int(hdu)
 	c_name := C.CString(extname)
 	defer C.free(unsafe.Pointer(c_name))

@@ -64,7 +64,7 @@ in single quote characters on the Unix command line.
 
 	// copy every HDU until we get an error
 	for i := 1; err == nil; i++ {
-		_, err = in.MoveAbsHdu(i)
+		_, err = in.MovAbsHdu(i)
 		if err != nil {
 			break
 		}

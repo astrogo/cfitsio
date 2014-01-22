@@ -77,7 +77,7 @@ name in single quote characters on the Unix command line.
 		if single {
 			break
 		}
-		_, err = f.MoveRelHdu(1)
+		_, err = f.MovRelHdu(1)
 	}
 	if err != nil && err != cfitsio.END_OF_FILE {
 		panic(err)

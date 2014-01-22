@@ -11,13 +11,188 @@ import (
 	"unsafe"
 )
 
-// Return a descriptive text string (30 char max.) corresponding to a CFITSIO error status code.
-func to_err(sc C.int) error {
+// Error is a CFITSIO error status code
+type Error int
+
+func (err Error) Error() string {
 	c_err := C.char_buf_array(C.FLEN_ERRMSG)
 	defer C.free(unsafe.Pointer(c_err))
-	C.ffgerr(sc, c_err)
-	err := fmt.Errorf("%s", C.GoString(c_err))
-	return err
+	C.ffgerr(C.int(err), c_err)
+	return fmt.Sprintf("cfitsio (err=%v) %q", int(err), C.GoString(c_err))
 }
+
+// Return a descriptive text string (30 char max.) corresponding to a CFITSIO error status code.
+func to_err(sc C.int) error {
+	return Error(int(sc))
+}
+
+var (
+	CREATE_DISK_FILE  Error = C.CREATE_DISK_FILE
+	OPEN_DISK_FILE    Error = C.OPEN_DISK_FILE
+	SKIP_TABLE        Error = C.SKIP_TABLE
+	SKIP_IMAGE        Error = C.SKIP_IMAGE
+	SKIP_NULL_PRIMARY Error = C.SKIP_NULL_PRIMARY
+	USE_MEM_BUFF      Error = C.USE_MEM_BUFF
+	OVERFLOW_ERR      Error = C.OVERFLOW_ERR
+	PREPEND_PRIMARY   Error = C.PREPEND_PRIMARY
+	SAME_FILE         Error = C.SAME_FILE
+	TOO_MANY_FILES    Error = C.TOO_MANY_FILES
+	FILE_NOT_OPENED   Error = C.FILE_NOT_OPENED
+	FILE_NOT_CREATED  Error = C.FILE_NOT_CREATED
+	WRITE_ERROR       Error = C.WRITE_ERROR
+	END_OF_FILE       Error = C.END_OF_FILE
+	READ_ERROR        Error = C.READ_ERROR
+	FILE_NOT_CLOSED   Error = C.FILE_NOT_CLOSED
+	ARRAY_TOO_BIG     Error = C.ARRAY_TOO_BIG
+	READONLY_FILE     Error = C.READONLY_FILE
+	MEMORY_ALLOCATION Error = C.MEMORY_ALLOCATION
+	BAD_FILEPTR       Error = C.BAD_FILEPTR
+	NULL_INPUT_PTR    Error = C.NULL_INPUT_PTR
+	SEEK_ERROR        Error = C.SEEK_ERROR
+
+	BAD_URL_PREFIX     Error = C.BAD_URL_PREFIX
+	TOO_MANY_DRIVERS   Error = C.TOO_MANY_DRIVERS
+	DRIVER_INIT_FAILED Error = C.DRIVER_INIT_FAILED
+	NO_MATCHING_DRIVER Error = C.NO_MATCHING_DRIVER
+	URL_PARSE_ERROR    Error = C.URL_PARSE_ERROR
+	RANGE_PARSE_ERROR  Error = C.RANGE_PARSE_ERROR
+
+	SHARED_ERRBASE  Error = C.SHARED_ERRBASE
+	SHARED_BADARG   Error = C.SHARED_BADARG
+	SHARED_NULPTR   Error = C.SHARED_NULPTR
+	SHARED_TABFULL  Error = C.SHARED_TABFULL
+	SHARED_NOTINIT  Error = C.SHARED_NOTINIT
+	SHARED_IPCERR   Error = C.SHARED_IPCERR
+	SHARED_NOMEM    Error = C.SHARED_NOMEM
+	SHARED_AGAIN    Error = C.SHARED_AGAIN
+	SHARED_NOFILE   Error = C.SHARED_NOFILE
+	SHARED_NORESIZE Error = C.SHARED_NORESIZE
+
+	HEADER_NOT_EMPTY Error = C.HEADER_NOT_EMPTY
+	KEY_NO_EXIST     Error = C.KEY_NO_EXIST
+	KEY_OUT_BOUNDS   Error = C.KEY_OUT_BOUNDS
+	VALUE_UNDEFINED  Error = C.VALUE_UNDEFINED
+	NO_QUOTE         Error = C.NO_QUOTE
+	BAD_INDEX_KEY    Error = C.BAD_INDEX_KEY
+	BAD_KEYCHAR      Error = C.BAD_KEYCHAR
+	BAD_ORDER        Error = C.BAD_ORDER
+	NOT_POS_INT      Error = C.NOT_POS_INT
+	NO_END           Error = C.NO_END
+	BAD_BITPIX       Error = C.BAD_BITPIX
+	BAD_NAXIS        Error = C.BAD_NAXIS
+	BAD_NAXES        Error = C.BAD_NAXES
+	BAD_PCOUNT       Error = C.BAD_PCOUNT
+	BAD_GCOUNT       Error = C.BAD_GCOUNT
+	BAD_TFIELDS      Error = C.BAD_TFIELDS
+	NEG_WIDTH        Error = C.NEG_WIDTH
+	NEG_ROWS         Error = C.NEG_ROWS
+	COL_NOT_FOUND    Error = C.COL_NOT_FOUND
+	BAD_SIMPLE       Error = C.BAD_SIMPLE
+	NO_SIMPLE        Error = C.NO_SIMPLE
+	NO_BITPIX        Error = C.NO_BITPIX
+	NO_NAXIS         Error = C.NO_NAXIS
+	NO_NAXES         Error = C.NO_NAXES
+	NO_XTENSION      Error = C.NO_XTENSION
+	NOT_ATABLE       Error = C.NOT_ATABLE
+	NOT_BTABLE       Error = C.NOT_BTABLE
+	NO_PCOUNT        Error = C.NO_PCOUNT
+	NO_GCOUNT        Error = C.NO_GCOUNT
+	NO_TFIELDS       Error = C.NO_TFIELDS
+	NO_TBCOL         Error = C.NO_TBCOL
+	NO_TFORM         Error = C.NO_TFORM
+	NOT_IMAGE        Error = C.NOT_IMAGE
+	BAD_TBCOL        Error = C.BAD_TBCOL
+	NOT_TABLE        Error = C.NOT_TABLE
+	COL_TOO_WIDE     Error = C.COL_TOO_WIDE
+	COL_NOT_UNIQUE   Error = C.COL_NOT_UNIQUE
+	BAD_ROW_WIDTH    Error = C.BAD_ROW_WIDTH
+	UNKNOWN_EXT      Error = C.UNKNOWN_EXT
+	UNKNOWN_REC      Error = C.UNKNOWN_REC
+	END_JUNK         Error = C.END_JUNK
+	BAD_HEADER_FILL  Error = C.BAD_HEADER_FILL
+	BAD_DATA_FILL    Error = C.BAD_DATA_FILL
+	BAD_TFORM        Error = C.BAD_TFORM
+	BAD_TFORM_DTYPE  Error = C.BAD_TFORM_DTYPE
+	BAD_TDIM         Error = C.BAD_TDIM
+	BAD_HEAP_PTR     Error = C.BAD_HEAP_PTR
+
+	BAD_HDU_NUM       Error = C.BAD_HDU_NUM
+	BAD_COL_NUM       Error = C.BAD_COL_NUM
+	NEG_FILE_POS      Error = C.NEG_FILE_POS
+	NEG_BYTES         Error = C.NEG_BYTES
+	BAD_ROW_NUM       Error = C.BAD_ROW_NUM
+	BAD_ELEM_NUM      Error = C.BAD_ELEM_NUM
+	NOT_ASCII_COL     Error = C.NOT_ASCII_COL
+	NOT_LOGICAL_COL   Error = C.NOT_LOGICAL_COL
+	BAD_ATABLE_FORMAT Error = C.BAD_ATABLE_FORMAT
+	BAD_BTABLE_FORMAT Error = C.BAD_BTABLE_FORMAT
+	NO_NULL           Error = C.NO_NULL
+	NOT_VARI_LEN      Error = C.NOT_VARI_LEN
+	BAD_DIMEN         Error = C.BAD_DIMEN
+	BAD_PIX_NUM       Error = C.BAD_PIX_NUM
+	ZERO_SCALE        Error = C.ZERO_SCALE
+	NEG_AXIS          Error = C.NEG_AXIS
+
+	NOT_GROUP_TABLE       Error = C.NOT_GROUP_TABLE
+	HDU_ALREADY_MEMBER    Error = C.HDU_ALREADY_MEMBER
+	MEMBER_NOT_FOUND      Error = C.MEMBER_NOT_FOUND
+	GROUP_NOT_FOUND       Error = C.GROUP_NOT_FOUND
+	BAD_GROUP_ID          Error = C.BAD_GROUP_ID
+	TOO_MANY_HDUS_TRACKED Error = C.TOO_MANY_HDUS_TRACKED
+	HDU_ALREADY_TRACKED   Error = C.HDU_ALREADY_TRACKED
+	BAD_OPTION            Error = C.BAD_OPTION
+	IDENTICAL_POINTERS    Error = C.IDENTICAL_POINTERS
+	BAD_GROUP_ATTACH      Error = C.BAD_GROUP_ATTACH
+	BAD_GROUP_DETACH      Error = C.BAD_GROUP_DETACH
+
+	BAD_I2C        Error = C.BAD_I2C
+	BAD_F2C        Error = C.BAD_F2C
+	BAD_INTKEY     Error = C.BAD_INTKEY
+	BAD_LOGICALKEY Error = C.BAD_LOGICALKEY
+	BAD_FLOATKEY   Error = C.BAD_FLOATKEY
+	BAD_DOUBLEKEY  Error = C.BAD_DOUBLEKEY
+	BAD_C2I        Error = C.BAD_C2I
+	BAD_C2F        Error = C.BAD_C2F
+	BAD_C2D        Error = C.BAD_C2D
+	BAD_DATATYPE   Error = C.BAD_DATATYPE
+	BAD_DECIM      Error = C.BAD_DECIM
+	NUM_OVERFLOW   Error = C.NUM_OVERFLOW
+
+	DATA_COMPRESSION_ERR   Error = C.DATA_COMPRESSION_ERR
+	DATA_DECOMPRESSION_ERR Error = C.DATA_DECOMPRESSION_ERR
+	NO_COMPRESSED_TILE     Error = C.NO_COMPRESSED_TILE
+
+	BAD_DATE Error = C.BAD_DATE
+
+	PARSE_SYNTAX_ERR Error = C.PARSE_SYNTAX_ERR
+	PARSE_BAD_TYPE   Error = C.PARSE_BAD_TYPE
+	PARSE_LRG_VECTOR Error = C.PARSE_LRG_VECTOR
+	PARSE_NO_OUTPUT  Error = C.PARSE_NO_OUTPUT
+	PARSE_BAD_COL    Error = C.PARSE_BAD_COL
+	PARSE_BAD_OUTPUT Error = C.PARSE_BAD_OUTPUT
+
+	ANGLE_TOO_BIG  Error = C.ANGLE_TOO_BIG
+	BAD_WCS_VAL    Error = C.BAD_WCS_VAL
+	WCS_ERROR      Error = C.WCS_ERROR
+	BAD_WCS_PROJ   Error = C.BAD_WCS_PROJ
+	NO_WCS_KEY     Error = C.NO_WCS_KEY
+	APPROX_WCS_KEY Error = C.APPROX_WCS_KEY
+
+	NO_CLOSE_ERROR Error = C.NO_CLOSE_ERROR
+
+	/*------- following error codes are used in the grparser.c file -----------*/
+	NGP_ERRBASE           Error = C.NGP_ERRBASE
+	NGP_OK                Error = C.NGP_OK
+	NGP_NO_MEMORY         Error = C.NGP_NO_MEMORY
+	NGP_READ_ERR          Error = C.NGP_READ_ERR
+	NGP_NUL_PTR           Error = C.NGP_NUL_PTR
+	NGP_EMPTY_CURLINE     Error = C.NGP_EMPTY_CURLINE
+	NGP_UNREAD_QUEUE_FULL Error = C.NGP_UNREAD_QUEUE_FULL
+	NGP_INC_NESTING       Error = C.NGP_INC_NESTING
+	NGP_ERR_FOPEN         Error = C.NGP_ERR_FOPEN
+	NGP_EOF               Error = C.NGP_EOF
+	NGP_BAD_ARG           Error = C.NGP_BAD_ARG
+	NGP_TOKEN_NOT_EXPECT  Error = C.NGP_TOKEN_NOT_EXPECT
+)
 
 // eof

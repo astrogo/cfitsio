@@ -61,7 +61,7 @@ name in single quote characters on the Unix command line.
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("Header listing for HDU #%d: (nkeys=%v)\n", hdu, nkeys)
+		fmt.Printf("Header listing for HDU #%d:\n", hdu)
 
 		for i := 1; i <= nkeys; i++ {
 			var card string

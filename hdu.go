@@ -1,8 +1,13 @@
 package cfitsio
 
+// #include <stdio.h>
 // #include "go-cfitsio.h"
 import "C"
-import "unsafe"
+import (
+	"io"
+	"io/ioutil"
+	"unsafe"
+)
 
 type HduType int
 
@@ -121,6 +126,28 @@ func (f *File) CopyHdu(out *File, morekeys int) error {
 		return to_err(c_status)
 	}
 	return nil
+}
+
+// Write the current HDU in the input FITS file to the output FILE stream (e.g., to stdout).
+func (f *File) WriteHdu(w io.Writer) error {
+	tmp, err := ioutil.TempFile("", "go-cfitsio-")
+	if err != nil {
+		return err
+	}
+	defer tmp.Close()
+
+	c_mode := C.CString("rw+")
+	defer C.free(unsafe.Pointer(c_mode))
+	fstream := C.fdopen(C.int(tmp.Fd()), c_mode)
+	c_status := C.int(0)
+	C.fits_write_hdu(f.c, fstream, &c_status)
+	if c_status > 0 {
+		return to_err(c_status)
+	}
+	C.fflush(fstream)
+	tmp.Seek(0, 0)
+	_, err = io.Copy(w, tmp)
+	return err
 }
 
 // EOF

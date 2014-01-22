@@ -155,4 +155,14 @@ func (f *File) WriteHdu(w io.Writer) error {
 	return err
 }
 
+// Copy the header (and not the data) from the CHDU associated with infptr to the CHDU associated with outfptr. If the current output HDU is not completely empty, then the CHDU will be closed and a new HDU will be appended to the output file. An empty output data unit will be created with all values initially = 0).
+func (f *File) CopyHeader(out *File) error {
+	c_status := C.int(0)
+	C.fits_copy_header(f.c, out.c, &c_status)
+	if c_status > 0 {
+		return to_err(c_status)
+	}
+	return nil
+}
+
 // EOF

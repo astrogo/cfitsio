@@ -18,6 +18,12 @@ const (
 	AnyHdy    HduType = C.ANY_HDU    // matches any HDU type
 )
 
+type Hdu struct {
+	Id   int     // id of this HDU (position in the File)
+	Type HduType // type of this HDU (Image, ASCII, Binary, ...)
+	File *File   // pointer to File hosting this HDU
+}
+
 // MovAbsHdu moves to a different HDU in the file
 func (f *File) MovAbsHdu(hdu int) (HduType, error) {
 	c_hdu := C.int(hdu)

@@ -9,6 +9,12 @@ import (
 	"unsafe"
 )
 
+type Keyword struct {
+	Name    string
+	Value   interface{}
+	Comment string
+}
+
 // Return the number of existing keywords (not counting the END keyword) and the amount of space currently available for more keywords. It returns morekeys = -1 if the header has not yet been closed. Note that CFITSIO will dynamically add space if required when writing new keywords to a header so in practice there is no limit to the number of keywords that can be added to a header. A null pointer may be entered for the morekeys parameter if it's value is not needed.
 func (f *File) HdrSpace() (keysexist, morekeys int, err error) {
 	c_key := C.int(0)
@@ -42,13 +48,14 @@ If a NULL comment pointer is supplied then the comment string will not be return
       (fitsfile *fptr, char *string, > char *card, int *status)
 */
 
-func (f *File) ReadKey(key string, v interface{}) (comment string, err error) {
+func (f *File) ReadKeyword(k *Keyword) error {
+	v := &k.Value
 	ptr := reflect.ValueOf(v)
 	if ptr.Kind() != reflect.Ptr {
-		return "", fmt.Errorf("cfitsio.ReadKey: invalid type (%T). expected reflect.Ptr", v)
+		return fmt.Errorf("cfitsio.ReadKey: invalid type (%T). expected reflect.Ptr", v)
 	}
 
-	c_key := C.CString(key)
+	c_key := C.CString(k.Name)
 	defer C.free(unsafe.Pointer(c_key))
 
 	c_ptr := unsafe.Pointer(ptr.Pointer())
@@ -96,9 +103,11 @@ func (f *File) ReadKey(key string, v interface{}) (comment string, err error) {
 
 	C.fits_read_key(f.c, c_typ, c_key, c_ptr, c_comment, &c_status)
 	if c_status > 0 {
-		return "", to_err(c_status)
+		return to_err(c_status)
 	}
-	return C.GoString(c_comment), nil
+
+	k.Comment = C.GoString(c_comment)
+	return nil
 }
 
 // Return the nth header record in the CHU. The first keyword in the header is at keynum = 1; if keynum = 0 then these routines simply reset the internal CFITSIO pointer to the beginning of the header so that subsequent keyword operations will start at the top of the header (e.g., prior to searching for keywords using wild cards in the keyword name). The first routine returns the entire 80-character header record (with trailing blanks truncated), while the second routine parses the record and returns the name, value, and comment fields as separate (blank truncated) character strings. If a NULL comment pointer is given on input, then the comment string will not be returned.

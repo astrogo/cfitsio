@@ -63,7 +63,7 @@ func (f *File) ReadKey(key string, v interface{}) (comment string, err error) {
 		c_typ = C.TLOGICAL
 
 	case reflect.Int8:
-		c_typ = C.TBYTE
+		c_typ = C.TSBYTE
 	case reflect.Int16:
 		c_typ = C.TSHORT
 	case reflect.Int32:

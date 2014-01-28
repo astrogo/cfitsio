@@ -34,10 +34,101 @@ func (hdu HduType) String() string {
 	}
 }
 
+// Hdu represents Header-Data Unit objects.
 type Hdu struct {
-	Id   int     // id of this HDU (position in the File)
-	Type HduType // type of this HDU (Image, ASCII, Binary, ...)
-	File *File   // pointer to File hosting this HDU
+	Id      int     // id of this HDU (position in the File)
+	Type    HduType // type of this HDU (Image, ASCII, Binary, ...)
+	File    *File   // pointer to File hosting this HDU
+	Bitpix  int64   // character information
+	Axes    []int64 // dimensions of image data array
+	Comment string
+	History string
+}
+
+// Hdu returns the i-th HDU (index: 0-based!)
+func (f *File) Hdu(i int) (Hdu, error) {
+	var hdu Hdu
+	var err error
+
+	htype, err := f.MovAbsHdu(i + 1)
+	if err != nil {
+		return hdu, err
+	}
+
+	bitpix := int64(8)
+	naxes := 0
+	var axes []int64
+
+	switch htype {
+	case IMAGE_HDU:
+		// do not try to read BITPIX or NAXIS directly.
+		// if this is a compressed image, the relevant information will need
+		// to come from ZBITPX and ZNAXIS.
+		c_status := C.int(0)
+		c_val := C.int(0)
+		C.fits_get_img_type(f.c, &c_val, &c_status)
+		if c_status > 0 {
+			return hdu, to_err(c_status)
+		}
+		bitpix = int64(c_val)
+
+		c_val = 0
+		C.fits_get_img_dim(f.c, &c_val, &c_status)
+		if c_status > 0 {
+			return hdu, to_err(c_status)
+		}
+		naxes = int(c_val)
+		if naxes > 0 {
+			axes = make([]int64, naxes)
+			c_status := C.int(0)
+			c_axes := (*C.long)(unsafe.Pointer(&axes[0]))
+			C.fits_get_img_size(f.c, C.int(naxes), c_axes, &c_status)
+			if c_status > 0 {
+				return hdu, to_err(c_status)
+			}
+		}
+	default:
+		bitpix = 8
+		// read NAXIS keyword
+		c_status := C.int(0)
+		c_val := C.long(0)
+		c_key := C.CString("NAXIS")
+		defer C.free(unsafe.Pointer(c_key))
+		var c_comment *C.char = nil
+		C.fits_read_key_lng(f.c, c_key, &c_val, c_comment, &c_status)
+		if c_status > 0 {
+			return hdu, to_err(c_status)
+		}
+		naxes = int(c_val)
+		if naxes > 0 {
+			axes = make([]int64, naxes)
+			for i := range axes {
+				c_status := C.int(0)
+				c_key := C.CString(fmt.Sprintf("NAXIS%d", i+1))
+				defer C.free(unsafe.Pointer(c_key))
+				c_axis := (*C.long)(unsafe.Pointer(&axes[i]))
+				C.fits_read_key_lng(f.c, c_key, c_axis, c_comment, &c_status)
+				if c_status > 0 {
+					return hdu, to_err(c_status)
+				}
+			}
+		}
+	}
+
+	hdu = Hdu{
+		Id:     i,
+		Type:   htype,
+		File:   f,
+		Bitpix: bitpix,
+		Axes:   axes,
+	}
+
+	return hdu, err
+}
+
+func (hdu *Hdu) Delete() {
+	hdu.File = nil
+	hdu.Axes = nil
 }
 
 // MovAbsHdu moves to a different HDU in the file

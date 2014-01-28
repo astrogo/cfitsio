@@ -43,6 +43,7 @@ type Hdu struct {
 	Axes    []int64 // dimensions of image data array
 	Comment string
 	History string
+	Keys    map[string]*Keyword
 }
 
 // Hdu returns the i-th HDU (index: 0-based!)

@@ -4,6 +4,7 @@ package cfitsio
 // #include "go-cfitsio.h"
 import "C"
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"unsafe"
@@ -12,10 +13,10 @@ import (
 type HduType int
 
 const (
-	ImageHdu  HduType = C.IMAGE_HDU  // Primary Array or IMAGE HDU
-	AsciiTbl  HduType = C.ASCII_TBL  // ASCII table HDU
-	BinaryTbl HduType = C.BINARY_TBL // Binary table HDU
-	AnyHdy    HduType = C.ANY_HDU    // matches any HDU type
+	IMAGE_HDU  HduType = C.IMAGE_HDU  // Primary Array or IMAGE HDU
+	ASCII_TBL  HduType = C.ASCII_TBL  // ASCII table HDU
+	BINARY_TBL HduType = C.BINARY_TBL // Binary table HDU
+	ANY_HDU    HduType = C.ANY_HDU    // matches any HDU type
 )
 
 type Hdu struct {

@@ -68,8 +68,8 @@ func TestHdu(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.ImageHdu {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.ImageHdu, hdutype)
+	if hdutype != cfitsio.IMAGE_HDU {
+		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.IMAGE_HDU, hdutype)
 	}
 
 	buf := bytes.NewBuffer(nil)

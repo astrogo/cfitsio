@@ -148,6 +148,10 @@ func TestHdu(t *testing.T) {
 	if err != cfitsio.END_OF_FILE {
 		t.Fatalf("expected error [%v]. got [%v]", cfitsio.END_OF_FILE, err)
 	}
+	ihdu = f.HduNum()
+	if ihdu != 2 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	}
 
 	// move to non-existent header
 	_, err = f.MovAbsHdu(0)
@@ -156,6 +160,10 @@ func TestHdu(t *testing.T) {
 	}
 	if err != cfitsio.BAD_HDU_NUM {
 		t.Fatalf("expected error [%v]. got [%v]", cfitsio.BAD_HDU_NUM, err)
+	}
+	ihdu = f.HduNum()
+	if ihdu != 2 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
 	}
 }
 

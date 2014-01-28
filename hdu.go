@@ -19,6 +19,21 @@ const (
 	ANY_HDU    HduType = C.ANY_HDU    // matches any HDU type
 )
 
+func (hdu HduType) String() string {
+	switch hdu {
+	case IMAGE_HDU:
+		return "IMAGE_HDU"
+	case ASCII_TBL:
+		return "ASCII_TBL"
+	case BINARY_TBL:
+		return "BINARY_TBL"
+	case ANY_HDU:
+		return "ANY_HDU"
+	default:
+		panic(fmt.Errorf("invalid HduType value (%v)", int(hdu)))
+	}
+}
+
 type Hdu struct {
 	Id   int     // id of this HDU (position in the File)
 	Type HduType // type of this HDU (Image, ASCII, Binary, ...)

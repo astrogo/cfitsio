@@ -9,12 +9,6 @@ import (
 	"unsafe"
 )
 
-type Keyword struct {
-	Name    string
-	Value   interface{}
-	Comment string
-}
-
 // Return the number of existing keywords (not counting the END keyword) and the amount of space currently available for more keywords. It returns morekeys = -1 if the header has not yet been closed. Note that CFITSIO will dynamically add space if required when writing new keywords to a header so in practice there is no limit to the number of keywords that can be added to a header. A null pointer may be entered for the morekeys parameter if it's value is not needed.
 func (f *File) HdrSpace() (keysexist, morekeys int, err error) {
 	c_key := C.int(0)

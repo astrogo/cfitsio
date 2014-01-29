@@ -43,7 +43,7 @@ type Hdu struct {
 	Axes    []int64 // dimensions of image data array
 	Comment string
 	History string
-	Keys    map[string]*Keyword
+	keys    map[string]*Keyword
 }
 
 // makeCurrent repositions the FITS file pointer to this HDU
@@ -137,6 +137,35 @@ func (f *File) Hdu(i int) (Hdu, error) {
 func (hdu *Hdu) Delete() {
 	hdu.File = nil
 	hdu.Axes = nil
+	for n, k := range hdu.keys {
+		k.Delete()
+		delete(hdu.keys, n)
+	}
+}
+
+// readAllKeys reads all Keywords for this HDU and populates Hdu.keys
+func (hdu *Hdu) readAllKeys() error {
+
+	err := hdu.makeCurrent()
+	if err != nil {
+		return err
+	}
+
+	c_status := C.int(0)
+	c_n := C.int(0)
+	C.fits_get_hdrpos(hdu.File.c, &c_n, nil, &c_status)
+	if c_status > 0 {
+		return to_err(c_status)
+	}
+
+	for i := 0; i < int(c_status); i++ {
+		key, err2 := hdu.Keyword(i)
+		if err2 == nil && key != nil {
+			key.hdu = hdu
+			hdu.keys[key.Name] = key
+		}
+	}
+	return err
 }
 
 // MovAbsHdu moves to a different HDU in the file

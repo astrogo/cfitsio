@@ -419,7 +419,16 @@ func TestHdu(t *testing.T) {
 			if !reflect.DeepEqual(hdu.Axes, ref.Axes) {
 				t.Fatalf("expected axes=%v. got %v (fname=%v)", ref.Axes, hdu.Axes, table.fname)
 			}
+
+			key, err := hdu.Keyword("NAXIS")
+			if err != nil {
+				t.Fatalf("error getting keyword 'NAXIS': %v (fname=%v)", err, table.fname)
+			}
+			if !reflect.DeepEqual(key.Value, int64(len(ref.Axes))) {
+				t.Fatalf("expected Keyword-NAXIS %v. got %v (fname=%v)", int64(len(ref.Axes)), key.Value, table.fname)
+			}
 		}
+
 	}
 }
 

@@ -1,7 +1,6 @@
 package cfitsio
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -10,7 +9,6 @@ import (
 // next line
 func strIsContinued(v string) bool {
 	vv := strings.Trim(v, " \n\t'")
-	fmt.Printf("vv=%q\n", vv)
 	if len(vv) == 0 {
 		return false
 	}

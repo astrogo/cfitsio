@@ -129,8 +129,10 @@ func (f *File) Hdu(i int) (Hdu, error) {
 		File:   f,
 		Bitpix: bitpix,
 		Axes:   axes,
+		keys:   make(map[string]*Keyword),
 	}
 
+	err = hdu.readAllKeys()
 	return hdu, err
 }
 
@@ -146,24 +148,25 @@ func (hdu *Hdu) Delete() {
 // readAllKeys reads all Keywords for this HDU and populates Hdu.keys
 func (hdu *Hdu) readAllKeys() error {
 
-	err := hdu.makeCurrent()
-	if err != nil {
-		return err
-	}
-
 	c_status := C.int(0)
 	c_n := C.int(0)
-	C.fits_get_hdrpos(hdu.File.c, &c_n, nil, &c_status)
+	c_dummy := C.int(0)
+	C.fits_get_hdrpos(hdu.File.c, &c_n, &c_dummy, &c_status)
 	if c_status > 0 {
 		return to_err(c_status)
 	}
 
-	for i := 0; i < int(c_status); i++ {
-		key, err2 := hdu.Keyword(i)
-		if err2 == nil && key != nil {
-			key.hdu = hdu
-			hdu.keys[key.Name] = key
+	var err error
+	for i := 0; i < int(c_n); i++ {
+		// if the reading of a particular keyword fails (most likely
+		// due to an undefined value) simply skip and continue to next keyword
+		key, _ := hdu.Keyword(i)
+		// nil keys may also be comment/history keywords (which have no value field)
+		if key == nil {
+			continue
 		}
+		key.hdu = hdu
+		hdu.keys[key.Name] = key
 	}
 	return err
 }

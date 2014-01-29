@@ -14,7 +14,40 @@ func TestKeyword(t *testing.T) {
 	}{
 		{
 			fname: "testdata/swp06542llg.fits",
-			keys:  [][]cfitsio.Keyword{},
+			keys: [][]cfitsio.Keyword{
+				{
+					{
+						Name:    "SIMPLE",
+						Value:   true,
+						Comment: "Standard FITS format",
+					},
+					{
+						Name:    "BITPIX",
+						Value:   int64(8),
+						Comment: "",
+					},
+					{
+						Name:    "NAXIS",
+						Value:   int64(0),
+						Comment: "no data in main file",
+					},
+					{
+						Name:    "EXTEND",
+						Value:   true,
+						Comment: "Extensions may exist",
+					},
+					{
+						Name:    "RA",
+						Value:   0.0,
+						Comment: "Right Ascension in degrees",
+					},
+					{
+						Name:    "EQUINOX",
+						Value:   1950.0,
+						Comment: "Epoch for coordinates (years)",
+					},
+				},
+			},
 		},
 		{
 			fname: "testdata/file001.fits",

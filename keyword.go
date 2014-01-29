@@ -4,6 +4,9 @@ package cfitsio
 // #include "go-cfitsio-utils.h"
 import "C"
 import (
+	"fmt"
+	"strconv"
+	"strings"
 	"unsafe"
 )
 
@@ -14,6 +17,10 @@ type Keyword struct {
 }
 
 func (hdu *Hdu) Keyword(name string) (*Keyword, error) {
+
+	if err := hdu.makeCurrent(); err != nil {
+		return nil, err
+	}
 
 	c_status := C.int(0)
 	c_card := C.char_buf_array(C.FLEN_CARD)
@@ -56,6 +63,81 @@ func (hdu *Hdu) parseRecord(name, value, comment string) (*Keyword, error) {
 	var key *Keyword
 	var err error
 
+	if value[0] == '\'' {
+		value = value[1 : len(value)-2]
+	}
+
+	c_status := C.int(0)
+	c_value := C.CString(value)
+	defer C.free(unsafe.Pointer(c_value))
+	c_type := C.char(0)
+	C.fits_get_keytype(c_value, &c_type, &c_status)
+	if c_status > 0 {
+		return nil, to_err(c_status)
+	}
+
+	dtype := string(c_type)[0]
+	switch dtype {
+	case 'L':
+		vv := value == "T"
+		key = &Keyword{
+			Name:    name,
+			Value:   vv,
+			Comment: comment,
+		}
+
+	case 'F':
+		var vv float64
+		vv, err = strconv.ParseFloat(value, 64)
+		if err != nil {
+			return nil, err
+		}
+		key = &Keyword{
+			Name:    name,
+			Value:   vv,
+			Comment: comment,
+		}
+
+	case 'I', 'T':
+		var vv int64
+		vv, err = strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		key = &Keyword{
+			Name:    name,
+			Value:   vv,
+			Comment: comment,
+		}
+
+	case 'X':
+		var vv complex128
+		_, err = fmt.Scanf(value, &vv)
+		if err != nil {
+			return nil, err
+		}
+		key = &Keyword{
+			Name:    name,
+			Value:   vv,
+			Comment: comment,
+		}
+
+	case 'C':
+		vv := strings.TrimRight(value, " ")
+		key = &Keyword{
+			Name:    name,
+			Value:   vv,
+			Comment: comment,
+		}
+
+	default:
+		vv := strings.TrimRight(value, " ")
+		key = &Keyword{
+			Name:    name,
+			Value:   vv,
+			Comment: comment,
+		}
+	}
 	return key, err
 }
 

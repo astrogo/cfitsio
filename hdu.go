@@ -46,6 +46,13 @@ type Hdu struct {
 	Keys    map[string]*Keyword
 }
 
+// makeCurrent repositions the FITS file pointer to this HDU
+func (hdu *Hdu) makeCurrent() error {
+
+	_, err := hdu.File.MovAbsHdu(hdu.Id + 1)
+	return err
+}
+
 // Hdu returns the i-th HDU (index: 0-based!)
 func (f *File) Hdu(i int) (Hdu, error) {
 	var hdu Hdu

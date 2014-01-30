@@ -41,7 +41,7 @@ name in single quote characters on the Unix command line.
 	}
 
 	fname := flag.Arg(0)
-	f, err := cfitsio.OpenFile(fname, cfitsio.ReadOnly)
+	f, err := cfitsio.Open(fname, cfitsio.ReadOnly)
 	if err != nil {
 		panic(err)
 	}

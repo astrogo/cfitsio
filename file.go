@@ -18,22 +18,48 @@ const (
 )
 
 type File struct {
-	c *C.fitsfile
+	c    *C.fitsfile
+	hdus []HDU
 }
 
-// Open an existing data file.
-func OpenFile(fname string, mode Mode) (f File, err error) {
+func (f *File) HDUs() []HDU {
+	return f.hdus
+}
+
+// Open an existing FITS file
+func Open(fname string, mode Mode) (File, error) {
+	var f File
+	var err error
+
 	c_status := C.int(0)
 	c_fname := C.CString(fname)
 	defer C.free(unsafe.Pointer(c_fname))
 
 	C.ffopen(&f.c, c_fname, C.int(mode), &c_status)
 	if c_status > 0 {
-		err = to_err(c_status)
-		return
+		return f, to_err(c_status)
 	}
 
-	return
+	nhdus, err := f.NumHdus()
+	if err != nil {
+		return f, err
+	}
+
+	f.hdus = make([]HDU, 0, nhdus)
+	for i := 0; i < nhdus; i++ {
+		hdu, err := f.readHDU(i)
+		if err != nil {
+			return f, err
+		}
+		f.hdus = append(f.hdus, hdu)
+	}
+	if err != nil {
+		return f, err
+	}
+
+	// go back at beginning of file
+	_, err = f.MovAbsHdu(1)
+	return f, err
 }
 
 // Open an existing data file.

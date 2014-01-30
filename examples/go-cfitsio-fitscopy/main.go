@@ -37,7 +37,7 @@ go-cfitsio-fitscopy in.fit[events][pi>35] out.fit    (copy rows with pi>35)
 go-cfitsio-fitscopy in.fit[events][bin X,Y] out.fit  (bin an image) 
 go-cfitsio-fitscopy in.fit[events][col x=.9*y] out.fit        (new x column)
 go-cfitsio-fitscopy in.fit[events][gtifilter()] out.fit       (time filter)
-go-cfitsio-fitscopy in.fit[2][regfilter(\"pow.reg\")] out.fit (spatial filter)
+go-cfitsio-fitscopy in.fit[2][regfilter("pow.reg")] out.fit (spatial filter)
 
 Note that it may be necessary to enclose the input file name
 in single quote characters on the Unix command line.

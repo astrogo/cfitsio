@@ -1,17 +1,15 @@
-package cfitsio_test
+package cfitsio
 
 import (
 	"bytes"
 	"io/ioutil"
 	"strings"
 	"testing"
-
-	cfitsio "github.com/sbinet/go-cfitsio"
 )
 
 func TestOpenFile(t *testing.T) {
 	const fname = "testdata/file001.fits"
-	f, err := cfitsio.OpenFile(fname, cfitsio.ReadOnly)
+	f, err := Open(fname, ReadOnly)
 	if err != nil {
 		t.Fatalf("could not open FITS file [%s]: %v", fname, err)
 	}
@@ -21,8 +19,8 @@ func TestOpenFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error mode: %v", err)
 	}
-	if fmode != cfitsio.ReadOnly {
-		t.Fatalf("expected file-mode [%v]. got [%v]", cfitsio.ReadOnly, fmode)
+	if fmode != ReadOnly {
+		t.Fatalf("expected file-mode [%v]. got [%v]", ReadOnly, fmode)
 	}
 
 	name, err := f.Name()
@@ -45,7 +43,7 @@ func TestOpenFile(t *testing.T) {
 
 func TestAsciiTbl(t *testing.T) {
 	const fname = "testdata/file001.fits"
-	f, err := cfitsio.OpenFile(fname, cfitsio.ReadOnly)
+	f, err := Open(fname, ReadOnly)
 	if err != nil {
 		t.Fatalf("could not open FITS file [%s]: %v", fname, err)
 	}
@@ -69,8 +67,8 @@ func TestAsciiTbl(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.IMAGE_HDU {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.IMAGE_HDU, hdutype)
+	if hdutype != IMAGE_HDU {
+		t.Fatalf("expected hdu type [%v]. got [%v]", IMAGE_HDU, hdutype)
 	}
 
 	buf := bytes.NewBuffer(nil)
@@ -102,8 +100,8 @@ func TestAsciiTbl(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.ASCII_TBL {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.ASCII_TBL, hdutype)
+	if hdutype != ASCII_TBL {
+		t.Fatalf("expected hdu type [%v]. got [%v]", ASCII_TBL, hdutype)
 	}
 
 	// move to first header
@@ -121,8 +119,8 @@ func TestAsciiTbl(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.IMAGE_HDU {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.IMAGE_HDU, hdutype)
+	if hdutype != IMAGE_HDU {
+		t.Fatalf("expected hdu type [%v]. got [%v]", IMAGE_HDU, hdutype)
 	}
 
 	// move to second header
@@ -140,8 +138,8 @@ func TestAsciiTbl(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.ASCII_TBL {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.ASCII_TBL, hdutype)
+	if hdutype != ASCII_TBL {
+		t.Fatalf("expected hdu type [%v]. got [%v]", ASCII_TBL, hdutype)
 	}
 
 	// move to non-existent header
@@ -149,8 +147,8 @@ func TestAsciiTbl(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error")
 	}
-	if err != cfitsio.END_OF_FILE {
-		t.Fatalf("expected error [%v]. got [%v]", cfitsio.END_OF_FILE, err)
+	if err != END_OF_FILE {
+		t.Fatalf("expected error [%v]. got [%v]", END_OF_FILE, err)
 	}
 	ihdu = f.HduNum()
 	if ihdu != 2 {
@@ -162,8 +160,8 @@ func TestAsciiTbl(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error")
 	}
-	if err != cfitsio.BAD_HDU_NUM {
-		t.Fatalf("expected error [%v]. got [%v]", cfitsio.BAD_HDU_NUM, err)
+	if err != BAD_HDU_NUM {
+		t.Fatalf("expected error [%v]. got [%v]", BAD_HDU_NUM, err)
 	}
 	ihdu = f.HduNum()
 	if ihdu != 2 {
@@ -182,15 +180,15 @@ func TestAsciiTbl(t *testing.T) {
 	}
 
 	// move to hdu by name
-	err = f.MovNamHdu(cfitsio.ASCII_TBL, "TABLE", 1)
-	if err != cfitsio.BAD_HDU_NUM {
-		t.Fatalf("expected error [%v]. got [%v]", cfitsio.BAD_HDU_NUM, err)
+	err = f.MovNamHdu(ASCII_TBL, "TABLE", 1)
+	if err != BAD_HDU_NUM {
+		t.Fatalf("expected error [%v]. got [%v]", BAD_HDU_NUM, err)
 	}
 }
 
 func TestBinTable(t *testing.T) {
 	const fname = "testdata/swp06542llg.fits"
-	f, err := cfitsio.OpenFile(fname, cfitsio.ReadOnly)
+	f, err := Open(fname, ReadOnly)
 	if err != nil {
 		t.Fatalf("could not open FITS file [%s]: %v", fname, err)
 	}
@@ -214,8 +212,8 @@ func TestBinTable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.IMAGE_HDU {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.IMAGE_HDU, hdutype)
+	if hdutype != IMAGE_HDU {
+		t.Fatalf("expected hdu type [%v]. got [%v]", IMAGE_HDU, hdutype)
 	}
 
 	buf := bytes.NewBuffer(nil)
@@ -248,8 +246,8 @@ func TestBinTable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.BINARY_TBL {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.BINARY_TBL, hdutype)
+	if hdutype != BINARY_TBL {
+		t.Fatalf("expected hdu type [%v]. got [%v]", BINARY_TBL, hdutype)
 	}
 
 	// move to first header
@@ -267,8 +265,8 @@ func TestBinTable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.IMAGE_HDU {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.IMAGE_HDU, hdutype)
+	if hdutype != IMAGE_HDU {
+		t.Fatalf("expected hdu type [%v]. got [%v]", IMAGE_HDU, hdutype)
 	}
 
 	// move to second header
@@ -286,8 +284,8 @@ func TestBinTable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error hdu-type: %v", err)
 	}
-	if hdutype != cfitsio.BINARY_TBL {
-		t.Fatalf("expected hdu type [%v]. got [%v]", cfitsio.BINARY_TBL, hdutype)
+	if hdutype != BINARY_TBL {
+		t.Fatalf("expected hdu type [%v]. got [%v]", BINARY_TBL, hdutype)
 	}
 
 	// move to non-existent header
@@ -295,8 +293,8 @@ func TestBinTable(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error")
 	}
-	if err != cfitsio.END_OF_FILE {
-		t.Fatalf("expected error [%v]. got [%v]", cfitsio.END_OF_FILE, err)
+	if err != END_OF_FILE {
+		t.Fatalf("expected error [%v]. got [%v]", END_OF_FILE, err)
 	}
 	ihdu = f.HduNum()
 	if ihdu != 2 {
@@ -308,8 +306,8 @@ func TestBinTable(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error")
 	}
-	if err != cfitsio.BAD_HDU_NUM {
-		t.Fatalf("expected error [%v]. got [%v]", cfitsio.BAD_HDU_NUM, err)
+	if err != BAD_HDU_NUM {
+		t.Fatalf("expected error [%v]. got [%v]", BAD_HDU_NUM, err)
 	}
 	ihdu = f.HduNum()
 	if ihdu != 2 {
@@ -328,7 +326,7 @@ func TestBinTable(t *testing.T) {
 	}
 
 	// move to hdu by name
-	err = f.MovNamHdu(cfitsio.BINARY_TBL, "IUE MELO", 1)
+	err = f.MovNamHdu(BINARY_TBL, "IUE MELO", 1)
 	if err != nil {
 		t.Fatalf("error hdu-nam: %v", err)
 	}
@@ -338,6 +336,41 @@ func TestBinTable(t *testing.T) {
 		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
 	}
 
+}
+
+func TestOpen(t *testing.T) {
+	for _, table := range g_tables {
+		f, err := Open(table.fname, ReadOnly)
+		if err != nil {
+			t.Fatalf("error opening file [%v]: %v", table.fname, err)
+		}
+		fmode, err := f.Mode()
+		if err != nil {
+			t.Fatalf("error mode: %v", err)
+		}
+		if fmode != ReadOnly {
+			t.Fatalf("expected file-mode [%v]. got [%v]", ReadOnly, fmode)
+		}
+
+		name, err := f.Name()
+		if err != nil {
+			t.Fatalf("error name: %v", err)
+		}
+		if name != table.fname {
+			t.Fatalf("expected file-name [%v]. got [%v]", table.fname, name)
+		}
+
+		furl, err := f.UrlType()
+		if err != nil {
+			t.Fatalf("error url: %v", err)
+		}
+		if furl != "file://" {
+			t.Fatalf("expected file-url [%v]. got [%v]", "file://", furl)
+		}
+		if len(f.HDUs()) != len(table.hdus) {
+			t.Fatalf("#hdus. expected %v. got %v", len(table.hdus), len(f.HDUs()))
+		}
+	}
 }
 
 // EOF

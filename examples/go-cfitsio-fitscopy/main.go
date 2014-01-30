@@ -49,7 +49,7 @@ in single quote characters on the Unix command line.
 	}
 
 	// open input file
-	in, err := cfitsio.OpenFile(flag.Arg(0), cfitsio.ReadOnly)
+	in, err := cfitsio.Open(flag.Arg(0), cfitsio.ReadOnly)
 	if err != nil {
 		panic(err)
 	}

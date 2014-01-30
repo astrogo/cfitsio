@@ -56,7 +56,7 @@ in single quote characters on the Unix command line.
 	defer in.Close()
 
 	// create output file
-	out, err := cfitsio.NewFile(flag.Arg(1))
+	out, err := cfitsio.Create(flag.Arg(1))
 	if err != nil {
 		panic(err)
 	}

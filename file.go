@@ -123,7 +123,7 @@ func OpenImage(fname string, mode Mode) (f File, err error) {
 }
 
 // Create and open a new empty output FITS file.
-func NewFile(fname string) (f File, err error) {
+func Create(fname string) (f File, err error) {
 	c_status := C.int(0)
 	c_fname := C.CString(fname)
 	defer C.free(unsafe.Pointer(c_fname))

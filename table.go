@@ -179,6 +179,21 @@ func (hdu *Table) Cols() []Column {
 	return hdu.cols
 }
 
+func (hdu *Table) Col(i int) *Column {
+	return &hdu.cols[i]
+}
+
+// Index returns the index of the first column with name `n` or -1
+func (hdu *Table) Index(n string) int {
+	for i := range hdu.cols {
+		col := &hdu.cols[i]
+		if col.Name == n {
+			return i
+		}
+	}
+	return -1
+}
+
 func (hdu *Table) ReadRow(irow int64) error {
 	err := hdu.seekHDU()
 	if err != nil {

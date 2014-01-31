@@ -2,8 +2,14 @@ package cfitsio
 
 //
 type BinTableHDU struct {
+	f      *File
 	header Header
 	data   interface{}
+}
+
+func (hdu *BinTableHDU) Close() error {
+	hdu.f = nil
+	return nil
 }
 
 func (hdu *BinTableHDU) Header() Header {
@@ -44,6 +50,7 @@ func (hdu *BinTableHDU) load() error {
 
 func newBinTableHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 	hdu = &BinTableHDU{
+		f:      f,
 		header: hdr,
 		data:   nil,
 	}
@@ -51,7 +58,7 @@ func newBinTableHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 }
 
 func init() {
-	g_hdus[BINARY_TBL] = newBinTableHDU
+	//g_hdus[BINARY_TBL] = newBinTableHDU
 }
 
 // EOF

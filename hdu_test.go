@@ -117,7 +117,7 @@ var g_tables = []struct {
 				),
 				data: nil,
 			},
-			&BinTableHDU{
+			&TableHDU{
 				header: NewHeader(
 					[]Card{
 						{

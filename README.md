@@ -31,6 +31,10 @@ func dumpFitsTable(fname string) {
 	table := f.HDUs()[1].(*fits.Table)
 	nrows := table.NumRows()
 	for i := int64(0); i < nrows; i++ {
+		err := table.ReadRow(i)
+		if err != nil {
+			panic(err)
+		}
 		for icol := range table.Cols() {
 			col := table.Col(icol)
 			fmt.Printf("%s[%d]=%v\n", col.Name, i, col.Value)

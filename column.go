@@ -41,14 +41,6 @@ func (col *Column) read(f *File, icol int, irow int64) error {
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		col.Value = byte(c_value)
 
-		// uint8 is byte
-		// case uint8:
-		// 	c_type = C.TBYTE
-		// 	var c_value C.char
-		// 	c_ptr := unsafe.Pointer(&c_value)
-		// 	C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		// 	col.Value = uint8(c_value)
-
 	case uint16:
 		c_type = C.TUSHORT
 		var c_value C.ushort

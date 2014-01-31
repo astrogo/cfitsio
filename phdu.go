@@ -2,8 +2,14 @@ package cfitsio
 
 // PrimaryHDU is the primary HDU
 type PrimaryHDU struct {
+	f      *File
 	header Header
 	data   interface{}
+}
+
+func (hdu *PrimaryHDU) Close() error {
+	hdu.f = nil
+	return nil
 }
 
 func (hdu *PrimaryHDU) Header() Header {

@@ -36,6 +36,7 @@ func (hdu HduType) String() string {
 
 // HDU represents Header-Data Units blocks
 type HDU interface {
+	Close() error
 	Header() Header
 	Type() HduType
 	Name() string

@@ -153,11 +153,21 @@ func NewDiskFile(fname string) (f File, err error) {
 }
 
 // Close closes a previously opened FITS file.
-func (f *File) Close() (err error) {
+func (f *File) Close() error {
 	c_status := C.int(0)
 	C.fits_close_file(f.c, &c_status)
-	err = to_err(c_status)
-	return
+	err := to_err(c_status)
+	if err != nil {
+		return err
+	}
+
+	for _, hdu := range f.hdus {
+		err2 := hdu.Close()
+		if err2 != nil {
+			err = err2
+		}
+	}
+	return err
 }
 
 // Delete closes a previously opened FITS file and also DELETES the file.

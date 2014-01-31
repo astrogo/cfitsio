@@ -2,8 +2,14 @@ package cfitsio
 
 //
 type ImageHDU struct {
+	f      *File
 	header Header
 	data   interface{}
+}
+
+func (hdu *ImageHDU) Close() error {
+	hdu.f = nil
+	return nil
 }
 
 func (hdu *ImageHDU) Header() Header {
@@ -46,11 +52,13 @@ func newImageHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 	switch i {
 	case 0:
 		hdu = &PrimaryHDU{
+			f:      f,
 			header: hdr,
 			data:   nil,
 		}
 	default:
 		hdu = &ImageHDU{
+			f:      f,
 			header: hdr,
 			data:   nil,
 		}

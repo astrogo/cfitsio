@@ -59,8 +59,8 @@ func TestAsciiTbl(t *testing.T) {
 	}
 
 	ihdu := f.HduNum()
-	if ihdu != 1 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
+	if ihdu != 0 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 0, ihdu)
 	}
 
 	hdutype, err := f.HduType()
@@ -92,8 +92,8 @@ func TestAsciiTbl(t *testing.T) {
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	hdutype, err = f.HduType()
@@ -105,14 +105,14 @@ func TestAsciiTbl(t *testing.T) {
 	}
 
 	// move to first header
-	_, err = f.MovAbsHdu(1)
+	_, err = f.MovAbsHdu(0)
 	if err != nil {
 		t.Fatalf("error abs-hdu: %v", err)
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 1 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
+	if ihdu != 0 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 0, ihdu)
 	}
 
 	hdutype, err = f.HduType()
@@ -124,14 +124,14 @@ func TestAsciiTbl(t *testing.T) {
 	}
 
 	// move to second header
-	_, err = f.MovAbsHdu(2)
+	_, err = f.MovAbsHdu(1)
 	if err != nil {
 		t.Fatalf("error abs-hdu: %v", err)
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	hdutype, err = f.HduType()
@@ -143,7 +143,7 @@ func TestAsciiTbl(t *testing.T) {
 	}
 
 	// move to non-existent header
-	_, err = f.MovAbsHdu(3)
+	_, err = f.MovAbsHdu(2)
 	if err == nil {
 		t.Fatalf("expected error")
 	}
@@ -151,12 +151,12 @@ func TestAsciiTbl(t *testing.T) {
 		t.Fatalf("expected error [%v]. got [%v]", END_OF_FILE, err)
 	}
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	// move to non-existent header
-	_, err = f.MovAbsHdu(0)
+	_, err = f.MovAbsHdu(-1)
 	if err == nil {
 		t.Fatalf("expected error")
 	}
@@ -164,19 +164,19 @@ func TestAsciiTbl(t *testing.T) {
 		t.Fatalf("expected error [%v]. got [%v]", BAD_HDU_NUM, err)
 	}
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	// move to first header
-	_, err = f.MovAbsHdu(1)
+	_, err = f.MovAbsHdu(0)
 	if err != nil {
 		t.Fatalf("error abs-hdu: %v", err)
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 1 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
+	if ihdu != 0 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 0, ihdu)
 	}
 
 	// move to hdu by name
@@ -204,8 +204,8 @@ func TestBinTable(t *testing.T) {
 	}
 
 	ihdu := f.HduNum()
-	if ihdu != 1 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
+	if ihdu != 0 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 0, ihdu)
 	}
 
 	hdutype, err := f.HduType()
@@ -238,8 +238,8 @@ func TestBinTable(t *testing.T) {
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	hdutype, err = f.HduType()
@@ -251,14 +251,14 @@ func TestBinTable(t *testing.T) {
 	}
 
 	// move to first header
-	_, err = f.MovAbsHdu(1)
+	_, err = f.MovAbsHdu(0)
 	if err != nil {
 		t.Fatalf("error abs-hdu: %v", err)
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 1 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
+	if ihdu != 0 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 0, ihdu)
 	}
 
 	hdutype, err = f.HduType()
@@ -270,14 +270,14 @@ func TestBinTable(t *testing.T) {
 	}
 
 	// move to second header
-	_, err = f.MovAbsHdu(2)
+	_, err = f.MovAbsHdu(1)
 	if err != nil {
 		t.Fatalf("error abs-hdu: %v", err)
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	hdutype, err = f.HduType()
@@ -289,7 +289,7 @@ func TestBinTable(t *testing.T) {
 	}
 
 	// move to non-existent header
-	_, err = f.MovAbsHdu(3)
+	_, err = f.MovAbsHdu(2)
 	if err == nil {
 		t.Fatalf("expected error")
 	}
@@ -297,12 +297,12 @@ func TestBinTable(t *testing.T) {
 		t.Fatalf("expected error [%v]. got [%v]", END_OF_FILE, err)
 	}
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	// move to non-existent header
-	_, err = f.MovAbsHdu(0)
+	_, err = f.MovAbsHdu(-1)
 	if err == nil {
 		t.Fatalf("expected error")
 	}
@@ -310,19 +310,19 @@ func TestBinTable(t *testing.T) {
 		t.Fatalf("expected error [%v]. got [%v]", BAD_HDU_NUM, err)
 	}
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 	// move to first header
-	_, err = f.MovAbsHdu(1)
+	_, err = f.MovAbsHdu(0)
 	if err != nil {
 		t.Fatalf("error abs-hdu: %v", err)
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 1 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
+	if ihdu != 0 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 0, ihdu)
 	}
 
 	// move to hdu by name
@@ -332,8 +332,8 @@ func TestBinTable(t *testing.T) {
 	}
 
 	ihdu = f.HduNum()
-	if ihdu != 2 {
-		t.Fatalf("expected hdu number [%v]. got [%v]", 2, ihdu)
+	if ihdu != 1 {
+		t.Fatalf("expected hdu number [%v]. got [%v]", 1, ihdu)
 	}
 
 }

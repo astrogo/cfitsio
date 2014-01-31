@@ -113,7 +113,7 @@ func readHeader(f *File, i int) (Header, error) {
 	var err error
 	var hdr Header
 
-	htype, err := f.MovAbsHdu(i + 1)
+	htype, err := f.MovAbsHdu(i)
 	if err != nil {
 		return hdr, err
 	}

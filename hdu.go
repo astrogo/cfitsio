@@ -61,8 +61,9 @@ func (f *File) readHDU(i int) (HDU, error) {
 }
 
 // MovAbsHdu moves to a different HDU in the file
+// Note: 0-based index
 func (f *File) MovAbsHdu(hdu int) (HduType, error) {
-	c_hdu := C.int(hdu)
+	c_hdu := C.int(hdu + 1) // 0-based index to 1-based index
 	c_htype := C.int(0)
 	c_status := C.int(0)
 
@@ -118,11 +119,12 @@ func (f *File) NumHdus() (int, error) {
 }
 
 // HduNum returns the number of the current HDU (CHDU) in the FITS file (where the primary array = 1). This function returns the HDU number rather than a status value.
+// Note: 0-based index
 func (f *File) HduNum() int {
 
 	c_n := C.int(0)
 	C.fits_get_hdu_num(f.c, &c_n)
-	return int(c_n)
+	return int(c_n) - 1 // 1-based index to 0-based index
 }
 
 // HduType returns the type of the current HDU in the FITS file. The possible values for hdutype are: IMAGE_HDU, ASCII_TBL, or BINARY_TBL.

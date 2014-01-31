@@ -117,7 +117,7 @@ var g_tables = []struct {
 				),
 				data: nil,
 			},
-			&TableHDU{
+			&Table{
 				header: NewHeader(
 					[]Card{
 						{
@@ -357,7 +357,7 @@ var g_tables = []struct {
 				),
 				data: nil,
 			},
-			&TableHDU{
+			&Table{
 				header: NewHeader(
 					[]Card{
 						{

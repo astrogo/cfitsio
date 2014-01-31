@@ -54,7 +54,7 @@ Display formats can be modified with the TDISPn keywords.
 		os.Exit(1)
 	}
 
-	table := hdu.(*cfitsio.TableHDU)
+	table := hdu.(*cfitsio.Table)
 	nrows := table.NumRows()
 	//ncols := table.NumCols()
 

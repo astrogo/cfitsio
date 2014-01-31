@@ -117,7 +117,7 @@ func govalue_from_typecode(t TypeCode) Value {
 	return v
 }
 
-type TableHDU struct {
+type Table struct {
 	f      *File
 	id     C.int
 	header Header
@@ -126,20 +126,20 @@ type TableHDU struct {
 	data   interface{}
 }
 
-func (hdu *TableHDU) Close() error {
+func (hdu *Table) Close() error {
 	hdu.f = nil
 	return nil
 }
 
-func (hdu *TableHDU) Header() Header {
+func (hdu *Table) Header() Header {
 	return hdu.header
 }
 
-func (hdu *TableHDU) Type() HduType {
+func (hdu *Table) Type() HduType {
 	return hdu.header.htype
 }
 
-func (hdu *TableHDU) Name() string {
+func (hdu *Table) Name() string {
 	card := hdu.header.Get("EXTNAME")
 	if card == nil {
 		return ""
@@ -147,7 +147,7 @@ func (hdu *TableHDU) Name() string {
 	return card.Value.(string)
 }
 
-func (hdu *TableHDU) Version() int {
+func (hdu *Table) Version() int {
 	card := hdu.header.Get("EXTVER")
 	if card == nil {
 		return 1
@@ -155,7 +155,7 @@ func (hdu *TableHDU) Version() int {
 	return card.Value.(int)
 }
 
-func (hdu *TableHDU) Data() (interface{}, error) {
+func (hdu *Table) Data() (interface{}, error) {
 	var err error
 	if hdu.data == nil {
 		err = hdu.load()
@@ -163,23 +163,23 @@ func (hdu *TableHDU) Data() (interface{}, error) {
 	return hdu.data, err
 }
 
-func (hdu *TableHDU) load() error {
+func (hdu *Table) load() error {
 	return nil
 }
 
-func (hdu *TableHDU) NumRows() int64 {
+func (hdu *Table) NumRows() int64 {
 	return hdu.nrows
 }
 
-func (hdu *TableHDU) NumCols() int {
+func (hdu *Table) NumCols() int {
 	return len(hdu.cols)
 }
 
-func (hdu *TableHDU) Cols() []Column {
+func (hdu *Table) Cols() []Column {
 	return hdu.cols
 }
 
-func (hdu *TableHDU) ReadRow(irow int64) error {
+func (hdu *Table) ReadRow(irow int64) error {
 	err := hdu.seekHDU()
 	if err != nil {
 		return err
@@ -193,7 +193,7 @@ func (hdu *TableHDU) ReadRow(irow int64) error {
 	return err
 }
 
-func (hdu *TableHDU) seekHDU() error {
+func (hdu *Table) seekHDU() error {
 	c_status := C.int(0)
 	c_htype := C.int(0)
 	C.fits_movabs_hdu(hdu.f.c, hdu.id, &c_htype, &c_status)
@@ -203,7 +203,7 @@ func (hdu *TableHDU) seekHDU() error {
 	return nil
 }
 
-func newTableHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
+func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 	c_status := C.int(0)
 	c_id := C.int(0)
 	C.fits_get_hdu_num(f.c, &c_id)
@@ -295,7 +295,7 @@ func newTableHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 		col.Value = govalue_from_typecode(TypeCode(c_type))
 	}
 
-	hdu = &TableHDU{
+	hdu = &Table{
 		f:      f,
 		id:     c_id,
 		header: hdr,
@@ -307,8 +307,8 @@ func newTableHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 }
 
 func init() {
-	g_hdus[ASCII_TBL] = newTableHDU
-	g_hdus[BINARY_TBL] = newTableHDU
+	g_hdus[ASCII_TBL] = newTable
+	g_hdus[BINARY_TBL] = newTable
 }
 
 // EOF

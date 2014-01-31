@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"unsafe"
 )
 
@@ -178,22 +179,28 @@ func (f *File) WriteHdu(w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	defer tmp.Close()
+	fname := tmp.Name()
+	tmp.Close()
+	os.Remove(fname)
 
-	c_mode := C.CString("rw+")
+	c_name := C.CString(fname)
+	defer C.free(unsafe.Pointer(c_name))
+	c_mode := C.CString("w")
 	defer C.free(unsafe.Pointer(c_mode))
-	fstream := C.fdopen(C.int(tmp.Fd()), c_mode)
+	fstream := C.fopen(c_name, c_mode)
 	c_status := C.int(0)
 	C.fits_write_hdu(f.c, fstream, &c_status)
 	if c_status > 0 {
 		return to_err(c_status)
 	}
-	C.fflush(fstream)
+	C.fclose(fstream)
 
-	_, err = tmp.Seek(0, 0)
+	tmp, err = os.Open(fname)
 	if err != nil {
 		return err
 	}
+	defer tmp.Close()
+	defer os.Remove(fname)
 
 	_, err = io.Copy(w, tmp)
 	return err

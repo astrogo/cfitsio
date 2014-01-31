@@ -3,6 +3,7 @@ package cfitsio
 //
 type TableHDU struct {
 	header Header
+	cols   []Column
 	data   interface{}
 }
 

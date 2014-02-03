@@ -47,7 +47,11 @@ Display formats can be modified with the TDISPn keywords.
 		// try to move to the first extension and see if it is a table
 		ihdu = 1
 	}
-	hdu := f.HDUs()[ihdu]
+	if ihdu >= len(f.HDUs()) {
+		fmt.Printf("Error: input file has no extension\n")
+		os.Exit(1)
+	}
+	hdu := f.HDU(ihdu)
 
 	if hdu.Type() == cfitsio.IMAGE_HDU {
 		fmt.Printf("Error: this program only displays tables, not images\n")

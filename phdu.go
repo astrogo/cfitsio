@@ -5,6 +5,7 @@ type PrimaryHDU struct {
 	f      *File
 	header Header
 	data   interface{}
+	read   bool // whether the image has been loaded from FITS
 }
 
 func (hdu *PrimaryHDU) Close() error {
@@ -38,14 +39,20 @@ func (hdu *PrimaryHDU) Version() int {
 
 func (hdu *PrimaryHDU) Data() (interface{}, error) {
 	var err error
-	if hdu.data == nil {
+	if !hdu.read {
 		err = hdu.load()
 	}
 	return hdu.data, err
 }
 
 func (hdu *PrimaryHDU) load() error {
-	return nil
+	data, err := loadImageData(hdu.f, &hdu.header)
+	if err != nil {
+		return err
+	}
+	hdu.read = true
+	hdu.data = data
+	return err
 }
 
 // EOF

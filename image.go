@@ -54,13 +54,22 @@ func (hdu *ImageHDU) Data() (interface{}, error) {
 }
 
 func (hdu *ImageHDU) load() error {
+	data, err := loadImageData(hdu.f, &hdu.header)
+	if err != nil {
+		return err
+	}
+	hdu.read = true
+	hdu.data = data
+	return err
+}
+
+func loadImageData(f *File, hdr *Header) (interface{}, error) {
 	var err error
-	hdr := hdu.Header()
+	var hdata interface{}
 	naxes := len(hdr.Axes())
 	switch naxes {
 	case 0:
-		hdu.read = true
-		hdu.data = []int64{}
+		hdata = nil
 	default:
 		nelmts := 1
 		for _, dim := range hdr.Axes() {
@@ -77,48 +86,47 @@ func (hdu *ImageHDU) load() error {
 			data := make([]byte, nelmts)
 			c_ptr = unsafe.Pointer(&data[0])
 			c_imgtype = C.TBYTE
-			hdu.data = data
+			hdata = data
 
 		case 16:
 			data := make([]int16, nelmts)
 			c_ptr = unsafe.Pointer(&data[0])
 			c_imgtype = C.TSHORT
-			hdu.data = data
+			hdata = data
 
 		case 32:
 			data := make([]int32, nelmts)
 			c_ptr = unsafe.Pointer(&data[0])
 			c_imgtype = C.TINT
-			hdu.data = data
+			hdata = data
 
 		case 64:
 			data := make([]int64, nelmts)
 			c_ptr = unsafe.Pointer(&data[0])
 			c_imgtype = C.TLONGLONG
-			hdu.data = data
+			hdata = data
 
 		case -32:
 			data := make([]float32, nelmts)
 			c_ptr = unsafe.Pointer(&data[0])
 			c_imgtype = C.TFLOAT
-			hdu.data = data
+			hdata = data
 
 		case -64:
 			data := make([]float64, nelmts)
 			c_ptr = unsafe.Pointer(&data[0])
 			c_imgtype = C.TDOUBLE
-			hdu.data = data
+			hdata = data
 
 		default:
 			panic(fmt.Errorf("invalid image type [%v]", hdr.Bitpix()))
 		}
-		C.fits_read_img(hdu.f.c, c_imgtype, c_start+1, c_nelmts, c_ptr, c_ptr, &c_anynull, &c_status)
+		C.fits_read_img(f.c, c_imgtype, c_start+1, c_nelmts, c_ptr, c_ptr, &c_anynull, &c_status)
 		if c_status > 0 {
-			return to_err(c_status)
+			return hdata, to_err(c_status)
 		}
-		hdu.read = true
 	}
-	return err
+	return hdata, err
 }
 
 func newImageHDU(f *File, hdr Header, i int) (hdu HDU, err error) {

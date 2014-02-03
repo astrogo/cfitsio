@@ -1,4 +1,4 @@
-// cfitsio is a wrapper around the CFITSIO library.
+// Package cfitsio is a wrapper around the CFITSIO library.
 package cfitsio
 
 // EOF

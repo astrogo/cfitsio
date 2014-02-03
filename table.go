@@ -135,7 +135,7 @@ func (hdu *Table) Header() Header {
 	return hdu.header
 }
 
-func (hdu *Table) Type() HduType {
+func (hdu *Table) Type() HDUType {
 	return hdu.header.htype
 }
 

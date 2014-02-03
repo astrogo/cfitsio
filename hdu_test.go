@@ -559,7 +559,7 @@ func TestHDU(t *testing.T) {
 		}
 		defer f.Close()
 
-		nhdus, err := f.NumHdus()
+		nhdus, err := f.NumHDUs()
 		if err != nil {
 			t.Fatalf("error num-hdus [%v]: %v", table.fname, err)
 		}

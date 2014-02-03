@@ -16,7 +16,7 @@ func (hdu *ImageHDU) Header() Header {
 	return hdu.header
 }
 
-func (hdu *ImageHDU) Type() HduType {
+func (hdu *ImageHDU) Type() HDUType {
 	return hdu.header.htype
 }
 

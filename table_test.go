@@ -11,7 +11,7 @@ func TestTable(t *testing.T) {
 		}
 
 		for i := range f.HDUs() {
-			hdu, ok := f.HDUs()[i].(*Table)
+			hdu, ok := f.HDU(i).(*Table)
 			if !ok {
 				continue
 			}

@@ -11,12 +11,12 @@ import (
 type Header struct {
 	slice  []Card
 	cards  map[string]int
-	htype  HduType // header type
+	htype  HDUType // header type
 	bitpix int64   // character information
 	axes   []int64 // dimensions of image data array
 }
 
-func NewHeader(cards []Card, htype HduType, bitpix int64, axes []int64) Header {
+func NewHeader(cards []Card, htype HDUType, bitpix int64, axes []int64) Header {
 	hdr := Header{
 		slice:  make([]Card, 0, len(cards)),
 		cards:  make(map[string]int, len(cards)),
@@ -113,7 +113,7 @@ func readHeader(f *File, i int) (Header, error) {
 	var err error
 	var hdr Header
 
-	htype, err := f.MovAbsHdu(i)
+	htype, err := f.seekHDU(i, 0)
 	if err != nil {
 		return hdr, err
 	}

@@ -41,7 +41,7 @@ Display formats can be modified with the TDISPn keywords.
 	}
 	defer f.Close()
 
-	ihdu := f.HduNum() // get the current HDU position
+	ihdu := f.HDUNum() // get the current HDU position
 	if ihdu == 0 {
 		// this is the primary array.
 		// try to move to the first extension and see if it is a table

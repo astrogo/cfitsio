@@ -42,10 +42,10 @@ func Open(fname string, mode Mode) (File, error) {
 
 	// ffopen might have moved to specific HDU (via fname specifications)
 	// remember it and go back to that one after we've dealt with "our" HDUs
-	ihdu := f.HduNum()
-	defer f.MovAbsHdu(ihdu)
+	ihdu := f.HDUNum()
+	defer f.SeekHDU(ihdu, 0)
 
-	nhdus, err := f.NumHdus()
+	nhdus, err := f.NumHDUs()
 	if err != nil {
 		return f, err
 	}

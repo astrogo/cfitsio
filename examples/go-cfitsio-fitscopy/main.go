@@ -64,11 +64,11 @@ in single quote characters on the Unix command line.
 
 	// copy every HDU until we get an error
 	for i := 1; err == nil; i++ {
-		_, err = in.MovAbsHdu(i)
+		err = in.SeekHDU(i, 0)
 		if err != nil {
 			break
 		}
-		err = in.CopyHdu(&out, 0)
+		err = in.CopyHDU(&out, 0)
 	}
 	if err != nil && err != cfitsio.END_OF_FILE {
 		panic(err)

@@ -16,7 +16,7 @@ func (hdu *PrimaryHDU) Header() Header {
 	return hdu.header
 }
 
-func (hdu *PrimaryHDU) Type() HduType {
+func (hdu *PrimaryHDU) Type() HDUType {
 	return hdu.header.htype
 }
 

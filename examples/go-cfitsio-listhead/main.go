@@ -47,7 +47,7 @@ name in single quote characters on the Unix command line.
 	}
 	defer f.Close()
 
-	hdu := f.HduNum() // get the current HDU position
+	hdu := f.HDUNum() // get the current HDU position
 
 	// list only a single header if a specific extension was given
 	if hdu != 1 || strings.Contains(fname, "[") {
@@ -77,7 +77,7 @@ name in single quote characters on the Unix command line.
 		if single {
 			break
 		}
-		_, err = f.MovRelHdu(1)
+		err = f.SeekHDU(1, 0)
 	}
 	if err != nil && err != cfitsio.END_OF_FILE {
 		panic(err)

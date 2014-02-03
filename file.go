@@ -17,16 +17,19 @@ const (
 	ReadWrite Mode = C.READWRITE
 )
 
+// File is a handle to a FITS file
 type File struct {
 	c    *C.fitsfile
 	hdus []HDU
 }
 
+// HDUs returns the list of all Header-Data Unit blocks in the file
 func (f *File) HDUs() []HDU {
 	return f.hdus
 }
 
 // Open an existing FITS file
+// Open will create HDU values, loading the Header part but leaving the Data part on disk.
 func Open(fname string, mode Mode) (File, error) {
 	var f File
 	var err error

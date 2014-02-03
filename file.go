@@ -65,88 +65,13 @@ func Open(fname string, mode Mode) (File, error) {
 	return f, err
 }
 
-// Open an existing data file.
-func OpenDiskFile(fname string, mode Mode) (f File, err error) {
-	c_status := C.int(0)
-	c_fname := C.CString(fname)
-	defer C.free(unsafe.Pointer(c_fname))
-
-	C.fits_open_diskfile(&f.c, c_fname, C.int(mode), &c_status)
-	if c_status > 0 {
-		err = to_err(c_status)
-		return
-	}
-
-	return
-}
-
-// Open an existing data file.
-func OpenData(fname string, mode Mode) (f File, err error) {
-	c_status := C.int(0)
-	c_fname := C.CString(fname)
-	defer C.free(unsafe.Pointer(c_fname))
-
-	C.fits_open_data(&f.c, c_fname, C.int(mode), &c_status)
-	if c_status > 0 {
-		err = to_err(c_status)
-		return
-	}
-
-	return
-}
-
-// Open an existing data file.
-func OpenTable(fname string, mode Mode) (f File, err error) {
-	c_status := C.int(0)
-	c_fname := C.CString(fname)
-	defer C.free(unsafe.Pointer(c_fname))
-
-	C.fits_open_table(&f.c, c_fname, C.int(mode), &c_status)
-	if c_status > 0 {
-		err = to_err(c_status)
-		return
-	}
-
-	return
-}
-
-// Open an existing data file.
-func OpenImage(fname string, mode Mode) (f File, err error) {
-	c_status := C.int(0)
-	c_fname := C.CString(fname)
-	defer C.free(unsafe.Pointer(c_fname))
-
-	C.fits_open_image(&f.c, c_fname, C.int(mode), &c_status)
-	if c_status > 0 {
-		err = to_err(c_status)
-		return
-	}
-
-	return
-}
-
-// Create and open a new empty output FITS file.
+// Create creates and opens a new empty output FITS file.
 func Create(fname string) (f File, err error) {
 	c_status := C.int(0)
 	c_fname := C.CString(fname)
 	defer C.free(unsafe.Pointer(c_fname))
 
 	C.fits_create_file(&f.c, c_fname, &c_status)
-	if c_status > 0 {
-		err = to_err(c_status)
-		return
-	}
-
-	return
-}
-
-// NewDiskFile creates and opens a new empty output FITS file.
-func NewDiskFile(fname string) (f File, err error) {
-	c_status := C.int(0)
-	c_fname := C.CString(fname)
-	defer C.free(unsafe.Pointer(c_fname))
-
-	C.fits_create_diskfile(&f.c, c_fname, &c_status)
 	if c_status > 0 {
 		err = to_err(c_status)
 		return

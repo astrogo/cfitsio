@@ -5,6 +5,9 @@ package cfitsio
 import "C"
 import (
 	"fmt"
+	"strconv"
+	"strings"
+	"unsafe"
 )
 
 type TypeCode int
@@ -246,12 +249,22 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 	}
 	for ii := 0; ii < ncols; ii++ {
 		col := &cols[ii]
-		card := get("TTYPE", ii)
-		if card != nil {
-			col.Name = card.Value.(string)
+		// column name
+		{
+			c_status := C.int(0)
+			c_tmpl := C.CString(fmt.Sprintf("%d", ii+1))
+			defer C.free(unsafe.Pointer(c_tmpl))
+			c_name := C.char_buf_array(C.FLEN_CARD)
+			defer C.free(unsafe.Pointer(c_name))
+			c_colnum := C.int(0)
+			C.fits_get_colname(f.c, C.CASESEN, c_tmpl, c_name, &c_colnum, &c_status)
+			if c_status > 0 {
+				return nil, to_err(c_status)
+			}
+			col.Name = C.GoString(c_name)
 		}
 
-		card = get("TFORM", ii)
+		card := get("TFORM", ii)
 		if card != nil {
 			col.Format = card.Value.(string)
 		}
@@ -285,9 +298,33 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 			col.Display = card.Value.(string)
 		}
 
+		{
+			// int fits_read_tdimll / ffgtdmll
+			//(fitsfile *fptr, int colnum, int maxdim, > int *naxis,
+			//LONGLONG *naxes, int *status)
+
+		}
 		card = get("TDIM", ii)
 		if card != nil {
-			col.Dim = card.Value.(int)
+			dims := card.Value.(string)
+			dims = strings.Replace(dims, "(", "", -1)
+			dims = strings.Replace(dims, ")", "", -1)
+			toks := make([]string, 0)
+			for _, tok := range strings.Split(dims, ",") {
+				tok = strings.Trim(tok, " \t\n")
+				if tok == "" {
+					continue
+				}
+				toks = append(toks, tok)
+			}
+			col.Dim = make([]int64, 0, len(toks))
+			for _, tok := range toks {
+				dim, err := strconv.ParseInt(tok, 10, 64)
+				if err != nil {
+					return nil, err
+				}
+				col.Dim = append(col.Dim, dim)
+			}
 		}
 
 		card = get("TBCOL", ii)
@@ -295,19 +332,18 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 			col.Start = card.Value.(int64)
 		}
 
-		col.Ascii = hdr.htype == ASCII_TBL
-
-		c_type := C.int(0)
-		c_repeat := C.long(0)
-		c_width := C.long(0)
-		c_status := C.int(0)
-		c_col := C.int(ii + 1) // 1-based index
-		C.fits_get_coltype(f.c, c_col, &c_type, &c_repeat, &c_width, &c_status)
-		if c_status > 0 {
-			return nil, to_err(c_status)
+		{
+			c_type := C.int(0)
+			c_repeat := C.long(0)
+			c_width := C.long(0)
+			c_status := C.int(0)
+			c_col := C.int(ii + 1) // 1-based index
+			C.fits_get_coltype(f.c, c_col, &c_type, &c_repeat, &c_width, &c_status)
+			if c_status > 0 {
+				return nil, to_err(c_status)
+			}
+			col.Value = govalue_from_typecode(TypeCode(c_type))
 		}
-
-		col.Value = govalue_from_typecode(TypeCode(c_type))
 	}
 
 	hdu = &Table{

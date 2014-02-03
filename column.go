@@ -18,9 +18,9 @@ type Column struct {
 	Bscale  float64 // bscale value, corresponding to ``TSCAL`` keyword
 	Bzero   float64 // bzero value, corresponding to ``TZERO`` keyword
 	Display string  // display format, corresponding to ``TDISP`` keyword
-	Dim     int     // column dimension corresponding to ``TDIM`` keyword
+	Dim     []int64 // column dimension corresponding to ``TDIM`` keyword
 	Start   int64   // column starting position, corresponding to ``TBCOL`` keyword
-	Ascii   bool    // whether this describes a column for an ASCII table
+	IsVLA   bool    // whether this is a variable length array
 	Value   Value   // value at current row
 }
 

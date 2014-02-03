@@ -47,29 +47,28 @@ name in single quote characters on the Unix command line.
 	}
 	defer f.Close()
 
-	hdu := f.HDUNum() // get the current HDU position
+	ihdu := f.HDUNum() // get the current HDU position
 
 	// list only a single header if a specific extension was given
-	if hdu != 1 || strings.Contains(fname, "[") {
+	if ihdu != 0 || strings.Contains(fname, "[") {
 		single = true
 	}
 
-	for ; err == nil; hdu++ {
-		var nkeys int
-		// get number of keywords
-		nkeys, _, err = f.HdrSpace()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("Header listing for HDU #%d:\n", hdu)
+	for i := ihdu; i < len(f.HDUs()); i++ {
+		hdu := f.CHDU()
+		hdr := hdu.Header()
+		fmt.Printf("Header listing for HDU #%d:\n", i)
 
-		for i := 1; i <= nkeys; i++ {
-			var card string
-			card, err = f.ReadRecord(i)
-			if err != nil {
-				panic(err)
+		for _, n := range hdr.Keys() {
+			card := hdr.Get(n)
+			if card == nil {
+				panic(fmt.Errorf("could not retrieve card [%v]", n))
 			}
-			fmt.Printf("%v\n", card)
+			fmt.Printf(
+				"%-8s= %-29s / %s\n",
+				card.Name,
+				fmt.Sprintf("%v", card.Value),
+				card.Comment)
 		}
 		fmt.Printf("END\n\n")
 

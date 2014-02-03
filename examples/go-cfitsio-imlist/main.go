@@ -52,7 +52,7 @@ Example:
 		panic(err)
 	}
 
-	pixels := data.([]int16)
+	pixels := data.([]int16) // FIXME
 
 	// default output format string
 	hdformat := " %15d"

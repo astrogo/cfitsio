@@ -99,11 +99,14 @@ func (f *File) Close() error {
 }
 
 // Delete closes a previously opened FITS file and also DELETES the file.
-func (f *File) Delete() (err error) {
+func (f *File) Delete() error {
+	err := f.Close()
+	if err != nil {
+		return err
+	}
 	c_status := C.int(0)
 	C.fits_delete_file(f.c, &c_status)
-	err = to_err(c_status)
-	return
+	return to_err(c_status)
 }
 
 // Name returns the name of a FITS file

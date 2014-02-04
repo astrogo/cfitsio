@@ -46,15 +46,16 @@ func (hdu *ImageHDU) Version() int {
 
 func (hdu *ImageHDU) Data(data interface{}) error {
 	//rt := reflect.TypeOf(data)
-	rv := reflect.ValueOf(data)
+	rv := reflect.ValueOf(data).Elem()
 	if !rv.CanAddr() {
 		return fmt.Errorf("%T is not addressable", data)
 	}
+
 	err := hdu.load(rv)
 	return err
 }
 
-func (hdu *ImageHDU) load(rv reflect.Value) error {
+func (hdu *ImageHDU) load(v reflect.Value) error {
 	var err error
 	hdr := hdu.Header()
 	naxes := len(hdr.Axes())
@@ -65,7 +66,7 @@ func (hdu *ImageHDU) load(rv reflect.Value) error {
 	for _, dim := range hdr.Axes() {
 		nelmts *= int(dim)
 	}
-	rv.SetLen(nelmts)
+	rv := reflect.MakeSlice(v.Type(), nelmts, nelmts)
 
 	c_start := C.LONGLONG(0)
 	c_nelmts := C.LONGLONG(nelmts)
@@ -75,28 +76,34 @@ func (hdu *ImageHDU) load(rv reflect.Value) error {
 	var c_ptr unsafe.Pointer
 	switch rv.Interface().(type) {
 	case []byte:
-		c_ptr = unsafe.Pointer(rv.Index(0).Pointer())
 		c_imgtype = C.TBYTE
+		data := rv.Interface().([]byte)
+		c_ptr = unsafe.Pointer(&data[0])
 
 	case []int16:
-		c_ptr = unsafe.Pointer(rv.Index(0).Pointer())
 		c_imgtype = C.TSHORT
+		data := rv.Interface().([]int16)
+		c_ptr = unsafe.Pointer(&data[0])
 
 	case []int32:
-		c_ptr = unsafe.Pointer(rv.Index(0).Pointer())
 		c_imgtype = C.TINT
+		data := rv.Interface().([]int32)
+		c_ptr = unsafe.Pointer(&data[0])
 
 	case []int64:
-		c_ptr = unsafe.Pointer(rv.Index(0).Pointer())
 		c_imgtype = C.TLONGLONG
+		data := rv.Interface().([]int64)
+		c_ptr = unsafe.Pointer(&data[0])
 
 	case []float32:
-		c_ptr = unsafe.Pointer(rv.Index(0).Pointer())
 		c_imgtype = C.TFLOAT
+		data := rv.Interface().([]float32)
+		c_ptr = unsafe.Pointer(&data[0])
 
 	case []float64:
-		c_ptr = unsafe.Pointer(rv.Index(0).Pointer())
 		c_imgtype = C.TDOUBLE
+		data := rv.Interface().([]float64)
+		c_ptr = unsafe.Pointer(&data[0])
 
 	default:
 		panic(fmt.Errorf("invalid image type [%T]", rv.Interface()))
@@ -105,6 +112,8 @@ func (hdu *ImageHDU) load(rv reflect.Value) error {
 	if c_status > 0 {
 		return to_err(c_status)
 	}
+
+	v.Set(rv)
 	return err
 }
 

@@ -42,7 +42,7 @@ type HDU interface {
 	Type() HDUType
 	Name() string
 	Version() int
-	Data() (interface{}, error)
+	Data(data interface{}) error
 }
 
 // hduMaker creates a HDU of correct underlying type according to Header hdr and index i

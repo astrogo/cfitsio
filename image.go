@@ -5,15 +5,14 @@ package cfitsio
 import "C"
 import (
 	"fmt"
+	"reflect"
 	"unsafe"
 )
 
-//
+// ImageHDU is a Header-Data-Unit extension holding an image as data payload.
 type ImageHDU struct {
 	f      *File
 	header Header
-	data   interface{}
-	read   bool // whether the image has been loaded from FITS
 }
 
 func (hdu *ImageHDU) Close() error {
@@ -45,103 +44,87 @@ func (hdu *ImageHDU) Version() int {
 	return card.Value.(int)
 }
 
-func (hdu *ImageHDU) Data() (interface{}, error) {
-	var err error
-	if !hdu.read {
-		err = hdu.load()
+func (hdu *ImageHDU) Data(data interface{}) error {
+	//rt := reflect.TypeOf(data)
+	rv := reflect.ValueOf(data).Elem()
+	if !rv.CanAddr() {
+		return fmt.Errorf("%T is not addressable", data)
 	}
-	return hdu.data, err
-}
 
-func (hdu *ImageHDU) load() error {
-	data, err := loadImageData(hdu.f, &hdu.header)
-	if err != nil {
-		return err
-	}
-	hdu.read = true
-	hdu.data = data
+	err := hdu.load(rv)
 	return err
 }
 
-func loadImageData(f *File, hdr *Header) (interface{}, error) {
+func (hdu *ImageHDU) load(v reflect.Value) error {
 	var err error
-	var hdata interface{}
+	hdr := hdu.Header()
 	naxes := len(hdr.Axes())
-	switch naxes {
-	case 0:
-		hdata = nil
-	default:
-		nelmts := 1
-		for _, dim := range hdr.Axes() {
-			nelmts *= int(dim)
-		}
-		c_start := C.LONGLONG(0)
-		c_nelmts := C.LONGLONG(nelmts)
-		c_anynull := C.int(0)
-		c_status := C.int(0)
-		c_imgtype := C.int(0)
-		var c_ptr unsafe.Pointer
-		switch hdr.Bitpix() {
-		case 8:
-			data := make([]byte, nelmts)
-			c_ptr = unsafe.Pointer(&data[0])
-			c_imgtype = C.TBYTE
-			hdata = data
-
-		case 16:
-			data := make([]int16, nelmts)
-			c_ptr = unsafe.Pointer(&data[0])
-			c_imgtype = C.TSHORT
-			hdata = data
-
-		case 32:
-			data := make([]int32, nelmts)
-			c_ptr = unsafe.Pointer(&data[0])
-			c_imgtype = C.TINT
-			hdata = data
-
-		case 64:
-			data := make([]int64, nelmts)
-			c_ptr = unsafe.Pointer(&data[0])
-			c_imgtype = C.TLONGLONG
-			hdata = data
-
-		case -32:
-			data := make([]float32, nelmts)
-			c_ptr = unsafe.Pointer(&data[0])
-			c_imgtype = C.TFLOAT
-			hdata = data
-
-		case -64:
-			data := make([]float64, nelmts)
-			c_ptr = unsafe.Pointer(&data[0])
-			c_imgtype = C.TDOUBLE
-			hdata = data
-
-		default:
-			panic(fmt.Errorf("invalid image type [%v]", hdr.Bitpix()))
-		}
-		C.fits_read_img(f.c, c_imgtype, c_start+1, c_nelmts, c_ptr, c_ptr, &c_anynull, &c_status)
-		if c_status > 0 {
-			return hdata, to_err(c_status)
-		}
+	if naxes == 0 {
+		return nil
 	}
-	return hdata, err
+	nelmts := 1
+	for _, dim := range hdr.Axes() {
+		nelmts *= int(dim)
+	}
+	rv := reflect.MakeSlice(v.Type(), nelmts, nelmts)
+
+	c_start := C.LONGLONG(0)
+	c_nelmts := C.LONGLONG(nelmts)
+	c_anynull := C.int(0)
+	c_status := C.int(0)
+	c_imgtype := C.int(0)
+	var c_ptr unsafe.Pointer
+	switch rv.Interface().(type) {
+	case []byte:
+		c_imgtype = C.TBYTE
+		data := rv.Interface().([]byte)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []int16:
+		c_imgtype = C.TSHORT
+		data := rv.Interface().([]int16)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []int32:
+		c_imgtype = C.TINT
+		data := rv.Interface().([]int32)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []int64:
+		c_imgtype = C.TLONGLONG
+		data := rv.Interface().([]int64)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []float32:
+		c_imgtype = C.TFLOAT
+		data := rv.Interface().([]float32)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []float64:
+		c_imgtype = C.TDOUBLE
+		data := rv.Interface().([]float64)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	default:
+		panic(fmt.Errorf("invalid image type [%T]", rv.Interface()))
+	}
+	C.fits_read_img(hdu.f.c, c_imgtype, c_start+1, c_nelmts, c_ptr, c_ptr, &c_anynull, &c_status)
+	if c_status > 0 {
+		return to_err(c_status)
+	}
+
+	v.Set(rv)
+	return err
 }
 
 func newImageHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 	switch i {
 	case 0:
-		hdu = &PrimaryHDU{
-			f:      f,
-			header: hdr,
-			data:   nil,
-		}
+		hdu, err = newPrimaryHDU(f, hdr)
 	default:
 		hdu = &ImageHDU{
 			f:      f,
 			header: hdr,
-			data:   nil,
 		}
 	}
 	return hdu, err

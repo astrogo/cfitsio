@@ -158,12 +158,12 @@ func (hdu *Table) Version() int {
 	return card.Value.(int)
 }
 
-func (hdu *Table) Data() (interface{}, error) {
+func (hdu *Table) Data(interface{}) error {
 	var err error
 	if hdu.data == nil {
 		err = hdu.load()
 	}
-	return hdu.data, err
+	return err
 }
 
 func (hdu *Table) load() error {

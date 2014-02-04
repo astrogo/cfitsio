@@ -1,6 +1,8 @@
 go-cfitsio
 ==========
 
+[![Build Status](https://drone.io/github.com/sbinet/go-cfitsio/status.png)](https://drone.io/github.com/sbinet/go-cfitsio/latest)
+
 Naive CGo bindings for ``CFITSIO``.
 
 ## Installation

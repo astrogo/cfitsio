@@ -47,12 +47,12 @@ Example:
 	}
 
 	axes := hdr.Axes()
-	data, err := hdu.Data()
+
+	var data []float64
+	err = hdu.Data(&data)
 	if err != nil {
 		panic(err)
 	}
-
-	pixels := data.([]int16) // FIXME
 
 	// default output format string
 	hdformat := " %15d"
@@ -73,7 +73,7 @@ Example:
 	for jj := 0; jj < int(axes[1]); jj++ {
 		fmt.Printf(" %4d ", jj)
 		for ii := 0; ii < row; ii++ {
-			fmt.Printf(format, float64(pixels[row*jj+ii]))
+			fmt.Printf(format, data[row*jj+ii])
 		}
 
 		fmt.Printf("\n")

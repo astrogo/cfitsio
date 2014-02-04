@@ -12,7 +12,7 @@ var g_tables = []struct {
 	{
 		fname: "testdata/swp06542llg.fits",
 		hdus: []HDU{
-			&PrimaryHDU{
+			&PrimaryHDU{ImageHDU{
 				header: NewHeader(
 					[]Card{
 						{
@@ -115,8 +115,7 @@ var g_tables = []struct {
 					8,
 					[]int64{},
 				),
-				data: nil,
-			},
+			}},
 			&Table{
 				header: NewHeader(
 					[]Card{
@@ -305,14 +304,13 @@ var g_tables = []struct {
 					8,
 					[]int64{},
 				),
-				data: nil,
 			},
 		},
 	},
 	{
 		fname: "testdata/file001.fits",
 		hdus: []HDU{
-			&PrimaryHDU{
+			&PrimaryHDU{ImageHDU{
 				header: NewHeader(
 					[]Card{
 						{
@@ -355,8 +353,7 @@ var g_tables = []struct {
 					8,
 					[]int64{},
 				),
-				data: nil,
-			},
+			}},
 			&Table{
 				header: NewHeader(
 					[]Card{
@@ -545,7 +542,6 @@ var g_tables = []struct {
 					8,
 					[]int64{98, 10},
 				),
-				data: nil,
 			},
 		},
 	},

@@ -30,7 +30,7 @@ func dumpFitsTable(fname string) {
 	defer f.Close()
 
 	// get the second HDU
-	table := f.HDUs()[1].(*fits.Table)
+	table := f.HDU(1).(*fits.Table)
 	nrows := table.NumRows()
 	for i := int64(0); i < nrows; i++ {
 		err := table.ReadRow(i)

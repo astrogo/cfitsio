@@ -28,4 +28,23 @@ func TestSqlDriver(t *testing.T) {
 		t.Fatalf("error pinging fits file: %v\n", err)
 	}
 
+	// var id int
+	// var name string
+	// rows, err := db.Query("select id, name from users where id = ?", 1)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// defer rows.Close()
+	// for rows.Next() {
+	// 	err := rows.Scan(&id, &name)
+	// 	if err != nil {
+	// 		t.Fatal(err)
+	// 	}
+	// 	fmt.Printf("id=%v, name=%q\n", id, name)
+	// }
+	// err = rows.Err()
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+
 }

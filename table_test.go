@@ -1,6 +1,9 @@
 package cfitsio
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestTable(t *testing.T) {
 	for _, table := range g_tables {
@@ -178,11 +181,46 @@ func TestTableScan(t *testing.T) {
 			nrows := hdu.NumRows()
 			count := int64(0)
 			for rows.Next() {
-				count++
-				err = rows.Scan()
-				if err != nil { // FIXME
-					//t.Fatalf("rows.Scan: expected a failure")
+				ref := make([]interface{}, len(table.tuple[i][count]))
+				data := make([]interface{}, len(ref))
+				for ii, vv := range table.tuple[i][count] {
+					rt := reflect.TypeOf(vv)
+					rv := reflect.New(rt)
+					rrv := reflect.Indirect(rv)
+					xx := rrv.Interface()
+					data[ii] = xx
+					ref[ii] = vv
 				}
+				err = rows.Scan(data...)
+				if err != nil {
+					t.Fatalf("rows.Scan: %v", err)
+				}
+				// check data just read in is ok
+				if !reflect.DeepEqual(data, ref) {
+					t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", ref, data)
+				}
+				// check columns data is ok
+				for ii, vv := range data {
+					if !reflect.DeepEqual(vv, hdu.Col(ii).Value) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", hdu.Col(ii).Value, vv)
+					}
+				}
+				// modify value of first column
+				switch vv := hdu.Col(0).Value.(type) {
+				case float64:
+					hdu.Col(0).Value = 1 + vv
+				case int16:
+					hdu.Col(0).Value = 1 + vv
+				}
+				// check data is still ok
+				if !reflect.DeepEqual(data, ref) {
+					t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", ref, data)
+				}
+				// but column data has changed
+				if reflect.DeepEqual(data[0], hdu.Col(0).Value) {
+					t.Fatalf("expected different values!")
+				}
+				count++
 			}
 			err = rows.Err()
 			if err != nil {

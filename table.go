@@ -211,6 +211,30 @@ func (hdu *Table) ReadRow(irow int64) error {
 	return err
 }
 
+func (hdu *Table) Read(irow, nrows int64) (*Rows, error) {
+	var rows *Rows
+	err := hdu.seekHDU()
+	if err != nil {
+		return rows, err
+	}
+
+	if nrows < 0 {
+		nrows = hdu.NumRows()
+	}
+	cols := make([]int, len(hdu.cols))
+	for i := range hdu.cols {
+		cols[i] = i
+	}
+	rows = &Rows{
+		table: hdu,
+		cols:  cols,
+		nrows: nrows,
+		irow:  -1,
+		err:   nil,
+	}
+	return rows, err
+}
+
 func (hdu *Table) seekHDU() error {
 	c_status := C.int(0)
 	c_htype := C.int(0)

@@ -5,9 +5,12 @@ import (
 	"testing"
 )
 
+type any interface{}
+
 var g_tables = []struct {
 	fname string
 	hdus  []HDU
+	tuple [][][]any
 }{
 	{
 		fname: "testdata/swp06542llg.fits",
@@ -304,6 +307,17 @@ var g_tables = []struct {
 					8,
 					[]int64{},
 				),
+			},
+		},
+		tuple: [][][]any{
+			nil,
+			[][]any{
+				// row-0
+				[]any{
+					int16(376), float32(1000.8), float32(2.6515958), float32(19286.426),
+					float32(22999.92), float32(1001.04297), float32(1001.04297),
+					float32(88),
+				},
 			},
 		},
 	},

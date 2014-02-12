@@ -114,6 +114,23 @@ func TestTableNext(t *testing.T) {
 				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows, count)
 			}
 
+			// iter over all rows +1
+			rows, err = hdu.Read(0, nrows+1)
+			if err != nil {
+				t.Fatalf("table.Read: %v", err)
+			}
+			count = int64(0)
+			for rows.Next() {
+				count++
+			}
+			err = rows.Err()
+			if err != nil {
+				t.Fatalf("rows.Err: %v", err)
+			}
+			if count != nrows {
+				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows, count)
+			}
+
 		}
 	}
 }

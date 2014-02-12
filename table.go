@@ -218,9 +218,14 @@ func (hdu *Table) Read(irow, nrows int64) (*Rows, error) {
 		return rows, err
 	}
 
+	maxrows := hdu.NumRows()
 	if nrows < 0 {
-		nrows = hdu.NumRows()
+		nrows = maxrows
 	}
+	if nrows > maxrows {
+		nrows = maxrows
+	}
+
 	cols := make([]int, len(hdu.cols))
 	for i := range hdu.cols {
 		cols[i] = i

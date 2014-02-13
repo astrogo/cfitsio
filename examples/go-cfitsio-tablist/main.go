@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"reflect"
 
 	cfitsio "github.com/sbinet/go-cfitsio"
 )
@@ -60,19 +61,34 @@ Display formats can be modified with the TDISPn keywords.
 
 	table := hdu.(*cfitsio.Table)
 	nrows := table.NumRows()
-	//ncols := table.NumCols()
-
+	rows, err := table.Read(0, nrows)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
+	}
 	w := os.Stdout
-	for icol, col := range table.Cols() {
-		fmt.Fprintf(w, "\n[row] -+- %s (%T)\n", col.Name, col.Value)
-
-		for i := int64(0); i < nrows; i++ {
-			fmt.Fprintf(w, "%4d ", i)
-			err := table.ReadRow(i)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Fprintf(w, "  |  %-10v\n", table.Cols()[icol].Value)
+	for irow := 0; rows.Next(); irow++ {
+		err = rows.Scan()
+		if err != nil {
+			fmt.Printf("Error: (row=%v) %v\n", irow, err)
 		}
+		if irow == 0 {
+			fmt.Fprintf(w, "\n[row]")
+			for _, col := range table.Cols() {
+				fmt.Fprintf(w, " %10s ", col.Name)
+			}
+			fmt.Fprintf(w, "\n")
+		}
+		fmt.Fprintf(w, "%05d", irow)
+		for _, col := range table.Cols() {
+			rv := reflect.ValueOf(col.Value).Convert(reflect.TypeOf(float64(0)))
+			fmt.Fprintf(w, " %+8.4E", rv.Float())
+		}
+		fmt.Fprintf(w, "\n")
+	}
+	err = rows.Err()
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(1)
 	}
 }

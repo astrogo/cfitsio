@@ -53,6 +53,17 @@ func (rows *Rows) Scan(args ...interface{}) error {
 		rows.err = err
 	}()
 
+	// special case: read everything into the cols.
+	if len(args) == 0 {
+		for _, icol := range rows.cols {
+			err = rows.table.cols[icol].read(rows.table.f, icol, rows.irow)
+			if err != nil {
+				return err
+			}
+		}
+		return err
+	}
+
 	if len(args) != len(rows.cols) {
 		return fmt.Errorf(
 			"cfitsio.Rows.Scan: invalid number of arguments (got %d. expected %d)",

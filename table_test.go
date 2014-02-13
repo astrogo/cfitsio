@@ -157,8 +157,8 @@ func TestTableErrScan(t *testing.T) {
 			for rows.Next() {
 				count++
 				err = rows.Scan()
-				if err == nil {
-					t.Fatalf("rows.Scan: expected a failure")
+				if err != nil {
+					t.Fatalf("rows.Scan: error: %v", err)
 				}
 
 				dummy := 0

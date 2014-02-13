@@ -32,16 +32,22 @@ func dumpFitsTable(fname string) {
 	// get the second HDU
 	table := f.HDU(1).(*fits.Table)
 	nrows := table.NumRows()
-	for i := int64(0); i < nrows; i++ {
-		err := table.ReadRow(i)
-		if err != nil {
-			panic(err)
-		}
-		for icol := range table.Cols() {
-			col := table.Col(icol)
-			fmt.Printf("%s[%d]=%v\n", col.Name, i, col.Value)
-		}
+    rows, err := table.Read(0, nrows)
+    if err != nil {
+        panic(err)
+    }
+    defer rows.Close()
+	for rows.Next() {
+        var x, y float64
+        var id int64
+        err = rows.Scan(&id, &x, &y)
+        if err != nil {
+            panic(err)
+        }
+        fmt.Printf(">>> %v %v %v\n", id, x, y)
 	}
+    err = rows.Err()
+    if err != nil { panic(err) }
 }
 
 ```

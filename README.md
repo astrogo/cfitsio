@@ -51,7 +51,7 @@ func dumpFitsTable(fname string) {
     
     // using a struct
     xx := struct{
-        Id int `fits:"ID"`
+        Id int     `fits:"ID"`
         X  float64 `fits:"x"`
         Y  float64 `fits:"y"`
     }{}

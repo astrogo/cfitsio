@@ -48,6 +48,37 @@ func dumpFitsTable(fname string) {
 	}
     err = rows.Err()
     if err != nil { panic(err) }
+    
+    // using a struct
+    xx := struct{
+        Id int `fits:"ID"`
+        X  float64 `fits:"x"`
+        Y  float64 `fits:"y"`
+    }{}
+    // using a map
+    yy := make(map[string]interface{})
+    
+    rows, err = table.Read(0, nrows)
+    if err != nil {
+        panic(err)
+    }
+    defer rows.Close()
+	for rows.Next() {
+        err = rows.Scan(&xx)
+        if err != nil {
+            panic(err)
+        }
+        fmt.Printf(">>> %v\n", xx)
+
+        err = rows.Scan(&yy)
+        if err != nil {
+            panic(err)
+        }
+        fmt.Printf(">>> %v\n", yy)
+	}
+    err = rows.Err()
+    if err != nil { panic(err) }
+    
 }
 
 ```

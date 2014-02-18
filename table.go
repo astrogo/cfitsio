@@ -211,6 +211,9 @@ func (hdu *Table) ReadRow(irow int64) error {
 	return err
 }
 
+// Read reads nrows starting at irow from the Table and returns an iterator over the read Rows.
+// If nrows < 0, all the rows are read.
+// If nrows > maxrows, all the rows are read.
 func (hdu *Table) Read(irow, nrows int64) (*Rows, error) {
 	var rows *Rows
 	err := hdu.seekHDU()
@@ -219,22 +222,25 @@ func (hdu *Table) Read(irow, nrows int64) (*Rows, error) {
 	}
 
 	maxrows := hdu.NumRows()
-	if nrows < 0 {
-		nrows = maxrows
+	if irow < 0 || irow >= maxrows {
+		irow = 0
+		nrows = 0
 	}
-	if nrows > maxrows {
-		nrows = maxrows
+	if nrows < 0 || irow+nrows > maxrows {
+		nrows = maxrows - irow
 	}
 
 	cols := make([]int, len(hdu.cols))
 	for i := range hdu.cols {
 		cols[i] = i
 	}
+
 	rows = &Rows{
 		table: hdu,
 		cols:  cols,
+		iter:  0,
 		nrows: nrows,
-		irow:  -1,
+		irow:  irow - 1,
 		err:   nil,
 	}
 	return rows, err

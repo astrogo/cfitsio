@@ -23,6 +23,7 @@ import (
 type Rows struct {
 	table  *Table
 	cols   []int // list of (active) column indices
+	iter   int64 // number of rows iterated over
 	nrows  int64 // number of rows this iterator iters over
 	irow   int64 // current row index
 	closed bool
@@ -160,8 +161,9 @@ func (rows *Rows) Next() bool {
 	if rows.closed {
 		return false
 	}
+	next := rows.iter < rows.nrows
 	rows.irow += 1
-	next := rows.irow < rows.nrows
+	rows.iter += 1
 	if !next {
 		rows.err = rows.Close()
 	}

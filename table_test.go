@@ -131,6 +131,57 @@ func TestTableNext(t *testing.T) {
 				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows, count)
 			}
 
+			// iter over all rows -1
+			rows, err = hdu.Read(1, nrows)
+			if err != nil {
+				t.Fatalf("table.Read: %v", err)
+			}
+			count = int64(0)
+			for rows.Next() {
+				count++
+			}
+			err = rows.Err()
+			if err != nil {
+				t.Fatalf("rows.Err: %v", err)
+			}
+			if count != nrows-1 {
+				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows-1, count)
+			}
+
+			// iter over [1,1+maxrows -1)
+			rows, err = hdu.Read(1, nrows-1)
+			if err != nil {
+				t.Fatalf("table.Read: %v", err)
+			}
+			count = int64(0)
+			for rows.Next() {
+				count++
+			}
+			err = rows.Err()
+			if err != nil {
+				t.Fatalf("rows.Err: %v", err)
+			}
+			if count != nrows-1 {
+				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows-1, count)
+			}
+
+			// iter over last row
+			rows, err = hdu.Read(nrows-1, 1)
+			if err != nil {
+				t.Fatalf("table.Read: %v", err)
+			}
+			count = int64(0)
+			for rows.Next() {
+				count++
+			}
+			err = rows.Err()
+			if err != nil {
+				t.Fatalf("rows.Err: %v", err)
+			}
+			if count != 1 {
+				t.Fatalf("rows.Next: expected [%d] rows. got %d.", 1, count)
+			}
+
 		}
 	}
 }

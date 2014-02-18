@@ -60,10 +60,10 @@ func (rows *Rows) Scan(args ...interface{}) error {
 		return rows.scanAll()
 	case 1:
 		// maybe special case: map? struct?
-		rt := reflect.TypeOf(args[0])
+		rt := reflect.TypeOf(args[0]).Elem()
 		switch rt.Kind() {
 		case reflect.Map:
-			return rows.scanMap(args[0].(map[string]interface{}))
+			return rows.scanMap(*args[0].(*map[string]interface{}))
 		case reflect.Struct:
 			return rows.scanStruct(args[0])
 		}
@@ -107,11 +107,9 @@ func (rows *Rows) scanMap(data map[string]interface{}) error {
 
 	icols := make([]int, 0, len(data))
 	for k := range data {
-		for _, icol := range rows.cols {
-			if rows.table.cols[icol].Name == k {
-				icols = append(icols, icol)
-				break
-			}
+		icol := rows.table.Index(k)
+		if icol >= 0 {
+			icols = append(icols, icol)
 		}
 	}
 	for _, icol := range icols {
@@ -128,7 +126,30 @@ func (rows *Rows) scanMap(data map[string]interface{}) error {
 
 func (rows *Rows) scanStruct(data interface{}) error {
 	var err error
-	panic("not implemented")
+
+	rt := reflect.TypeOf(data).Elem()
+	rv := reflect.ValueOf(data).Elem()
+	icols := make([][2]int, 0, rt.NumField())
+	for i := 0; i < rt.NumField(); i++ {
+		f := rt.Field(i)
+		n := f.Tag.Get("fits")
+		if n == "" {
+			n = f.Name
+		}
+		icol := rows.table.Index(n)
+		if icol >= 0 {
+			icols = append(icols, [2]int{i, icol})
+		}
+	}
+
+	for _, icol := range icols {
+		err = rows.table.cols[icol[1]].read(rows.table.f, icol[1], rows.irow)
+		if err != nil {
+			return err
+		}
+		vv := reflect.ValueOf(rows.table.cols[icol[1]].Value)
+		rv.Field(icol[0]).Set(vv)
+	}
 	return err
 }
 

@@ -11,6 +11,8 @@ var g_tables = []struct {
 	fname string
 	hdus  []HDU
 	tuple [][][]any
+	maps  []map[string]any
+	types []interface{}
 }{
 	{
 		fname: "testdata/swp06542llg.fits",
@@ -321,6 +323,34 @@ var g_tables = []struct {
 				},
 			},
 		},
+		maps: []map[string]any{
+			{},
+			{
+				"ORDER":    int16(1),
+				"NPTS":     int16(376),
+				"LAMBDA":   float32(1000.8),
+				"DELTAW":   float32(2.6515958),
+				"GROSS":    float32(19286.426),
+				"BACK":     float32(22999.92),
+				"NET":      float32(1001.04297),
+				"ABNET":    float32(1001.04297),
+				"EPSILONS": float32(88),
+			},
+		},
+		types: []interface{}{
+			nil,
+			struct {
+				Order    int16   `fits:"ORDER"`
+				Npts     int16   `fits:"NPTS"`
+				DeltaW   float32 `fits:"DELTAW"` // switch order of deltaw w/ lambda
+				Lambda   float32 `fits:"LAMBDA"`
+				Gross    float32 `fits:"GROSS"`
+				Back     float32 `fits:"BACK"`
+				Net      float32 `fits:"NET"`
+				ABNET    float32 // test w/o struct-tag
+				EPSILONS float32 // ditto
+			}{},
+		},
 	},
 	{
 		fname: "testdata/file001.fits",
@@ -600,6 +630,32 @@ var g_tables = []struct {
 					14237.0, 13.3633, -20.867, 3.5, 117.0, 42.199999999999996, 0.0,
 				},
 			},
+		},
+		maps: []map[string]any{
+			{},
+			{
+				"IDEN.": -1116.59,
+				"RA":    11.28,
+				"DEC":   59.5667,
+				"TYPE":  float64(3),
+				"D25":   77.89999,
+				"INCL.": float64(12),
+				"RV":    float64(0),
+				//"NOT-THERE": 0.0,
+			},
+		},
+		types: []interface{}{
+			nil,
+			struct {
+				Iden float64 `fits:"IDEN."`
+				Ra   float64 `fits:"RA"`
+				Dec  float64 `fits:"DEC"`
+				Type float64 `fits:"TYPE"`
+				D25  float64 `fits:"D25"`
+				Incl float64 `fits:"INCL."`
+				RV   float64 // test w/o struct-tag
+				//X_NotThere float64 `fits:"NOT_THERE"`
+			}{},
 		},
 	},
 }

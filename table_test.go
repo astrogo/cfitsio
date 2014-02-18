@@ -45,12 +45,12 @@ func TestTableNext(t *testing.T) {
 				continue
 			}
 
+			nrows := hdu.NumRows()
 			// iter over all rows
-			rows, err := hdu.Read(0, -1)
+			rows, err := hdu.Read(0, nrows)
 			if err != nil {
 				t.Fatalf("table.Read: %v", err)
 			}
-			nrows := hdu.NumRows()
 			count := int64(0)
 			for rows.Next() {
 				count++
@@ -161,161 +161,6 @@ func TestTableNext(t *testing.T) {
 			if err != nil {
 				t.Fatalf("rows.Err: %v", err)
 			}
-			if count != nrows-1 {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows-1, count)
-			}
-
-			// iter over last row
-			rows, err = hdu.Read(nrows-1, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count = int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
-			if count != 1 {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", 1, count)
-			}
-
-		}
-	}
-}
-
-func TestTableRangeNext(t *testing.T) {
-	for _, table := range g_tables {
-		fname := table.fname
-		f, err := Open(fname, ReadOnly)
-		if err != nil {
-			t.Fatalf("error opening file [%v]: %v", fname, err)
-		}
-
-		for i := range f.HDUs() {
-			hdu, ok := f.HDU(i).(*Table)
-			if !ok {
-				continue
-			}
-
-			nrows := hdu.NumRows()
-			// iter over all rows
-			rows, err := hdu.ReadRange(0, nrows, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count := int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
-			if count != nrows {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows, count)
-			}
-
-			// iter over no row
-			rows, err = hdu.ReadRange(0, 0, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count = int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
-			if count != 0 {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", 0, count)
-			}
-
-			// iter over 1 row
-			rows, err = hdu.ReadRange(0, 1, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count = int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
-			if count != 1 {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", 1, count)
-			}
-
-			// iter over all rows
-			rows, err = hdu.ReadRange(0, nrows, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count = int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
-			if count != nrows {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows, count)
-			}
-
-			// iter over all rows +1
-			rows, err = hdu.ReadRange(0, nrows+1, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count = int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
-			if count != nrows {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows, count)
-			}
-
-			// iter over all rows -1
-			rows, err = hdu.ReadRange(1, nrows, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count = int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
-			if count != nrows-1 {
-				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows-1, count)
-			}
-
-			// iter over [1,1+maxrows -1)
-			rows, err = hdu.ReadRange(1, nrows-1, 1)
-			if err != nil {
-				t.Fatalf("table.Read: %v", err)
-			}
-			count = int64(0)
-			for rows.Next() {
-				count++
-			}
-			err = rows.Err()
-			if err != nil {
-				t.Fatalf("rows.Err: %v", err)
-			}
 			exp := nrows - 2
 			if exp <= 0 {
 				exp = 0
@@ -325,7 +170,7 @@ func TestTableRangeNext(t *testing.T) {
 			}
 
 			// iter over last row
-			rows, err = hdu.ReadRange(nrows-1, nrows, 1)
+			rows, err = hdu.Read(nrows-1, nrows)
 			if err != nil {
 				t.Fatalf("table.Read: %v", err)
 			}
@@ -358,11 +203,11 @@ func TestTableErrScan(t *testing.T) {
 			if !ok {
 				continue
 			}
-			rows, err := hdu.Read(0, -1)
+			nrows := hdu.NumRows()
+			rows, err := hdu.Read(0, nrows)
 			if err != nil {
 				t.Fatalf("table.Read: %v", err)
 			}
-			nrows := hdu.NumRows()
 			count := int64(0)
 			for rows.Next() {
 				count++
@@ -401,11 +246,11 @@ func TestTableScan(t *testing.T) {
 			if !ok {
 				continue
 			}
-			rows, err := hdu.Read(0, -1)
+			nrows := hdu.NumRows()
+			rows, err := hdu.Read(0, nrows)
 			if err != nil {
 				t.Fatalf("table.Read: %v", err)
 			}
-			nrows := hdu.NumRows()
 			count := int64(0)
 			for rows.Next() {
 				ref := make([]interface{}, len(table.tuple[i][count]))
@@ -477,11 +322,11 @@ func TestTableScanMap(t *testing.T) {
 			if len(refmap) <= 0 {
 				continue
 			}
-			rows, err := hdu.Read(0, -1)
+			nrows := hdu.NumRows()
+			rows, err := hdu.Read(0, nrows)
 			if err != nil {
 				t.Fatalf("table.Read: %v", err)
 			}
-			nrows := hdu.NumRows()
 			count := int64(0)
 			for rows.Next() {
 				ref := make(map[string]interface{}, len(refmap))
@@ -559,11 +404,11 @@ func TestTableScanStruct(t *testing.T) {
 				continue
 			}
 			reftype := reflect.TypeOf(reftypes)
-			rows, err := hdu.Read(0, -1)
+			nrows := hdu.NumRows()
+			rows, err := hdu.Read(0, nrows)
 			if err != nil {
 				t.Fatalf("table.Read: %v", err)
 			}
-			nrows := hdu.NumRows()
 			count := int64(0)
 			for rows.Next() {
 				ref := reflect.New(reftype)

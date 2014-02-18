@@ -197,7 +197,7 @@ func (hdu *Table) Index(n string) int {
 	return -1
 }
 
-func (hdu *Table) ReadRow(irow int64) error {
+func (hdu *Table) readRow(irow int64) error {
 	err := hdu.seekHDU()
 	if err != nil {
 		return err
@@ -230,6 +230,35 @@ func (hdu *Table) Read(irow, nrows int64) (*Rows, error) {
 		nrows = maxrows - irow
 	}
 
+	return hdu.readRange(irow, irow+nrows, 1)
+}
+
+// ReadRange reads rows over the range [beg, end) and returns the corresponding iterator.
+// if end > maxrows, the iteration will stop at maxrows
+// ReadRange has the same semantics than a `for i=0; i < max; i+=inc {...}` loop
+func (hdu *Table) ReadRange(beg, end, inc int64) (*Rows, error) {
+	var rows *Rows
+	err := hdu.seekHDU()
+	if err != nil {
+		return rows, err
+	}
+
+	maxrows := hdu.NumRows()
+	if end > maxrows {
+		end = maxrows
+	}
+
+	if beg < 0 {
+		beg = 0
+	}
+
+	return hdu.readRange(beg, end, inc)
+}
+
+func (hdu *Table) readRange(beg, end, inc int64) (*Rows, error) {
+	var rows *Rows
+	var err error
+
 	cols := make([]int, len(hdu.cols))
 	for i := range hdu.cols {
 		cols[i] = i
@@ -238,9 +267,10 @@ func (hdu *Table) Read(irow, nrows int64) (*Rows, error) {
 	rows = &Rows{
 		table: hdu,
 		cols:  cols,
-		iter:  0,
-		nrows: nrows,
-		irow:  irow - 1,
+		i:     beg,
+		n:     end,
+		inc:   inc,
+		cur:   beg - inc,
 		err:   nil,
 	}
 	return rows, err

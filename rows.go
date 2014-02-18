@@ -23,9 +23,10 @@ import (
 type Rows struct {
 	table  *Table
 	cols   []int // list of (active) column indices
-	iter   int64 // number of rows iterated over
-	nrows  int64 // number of rows this iterator iters over
-	irow   int64 // current row index
+	i      int64 // number of rows iterated over
+	n      int64 // number of rows this iterator iters over
+	inc    int64 // number of rows to increment by at each iteration
+	cur    int64 // current row index
 	closed bool
 	err    error // last error
 }
@@ -83,7 +84,7 @@ func (rows *Rows) scan(args ...interface{}) error {
 		)
 	}
 	for i, icol := range rows.cols {
-		err = rows.table.cols[icol].read(rows.table.f, icol, rows.irow)
+		err = rows.table.cols[icol].read(rows.table.f, icol, rows.cur)
 		if err != nil {
 			return err
 		}
@@ -95,7 +96,7 @@ func (rows *Rows) scan(args ...interface{}) error {
 func (rows *Rows) scanAll() error {
 	var err error
 	for _, icol := range rows.cols {
-		err = rows.table.cols[icol].read(rows.table.f, icol, rows.irow)
+		err = rows.table.cols[icol].read(rows.table.f, icol, rows.cur)
 		if err != nil {
 			return err
 		}
@@ -115,7 +116,7 @@ func (rows *Rows) scanMap(data map[string]interface{}) error {
 	}
 	for _, icol := range icols {
 		col := rows.table.Col(icol)
-		err = rows.table.cols[icol].read(rows.table.f, icol, rows.irow)
+		err = rows.table.cols[icol].read(rows.table.f, icol, rows.cur)
 		if err != nil {
 			return err
 		}
@@ -144,7 +145,7 @@ func (rows *Rows) scanStruct(data interface{}) error {
 	}
 
 	for _, icol := range icols {
-		err = rows.table.cols[icol[1]].read(rows.table.f, icol[1], rows.irow)
+		err = rows.table.cols[icol[1]].read(rows.table.f, icol[1], rows.cur)
 		if err != nil {
 			return err
 		}
@@ -161,9 +162,9 @@ func (rows *Rows) Next() bool {
 	if rows.closed {
 		return false
 	}
-	next := rows.iter < rows.nrows
-	rows.irow += 1
-	rows.iter += 1
+	next := rows.i < rows.n
+	rows.cur += rows.inc
+	rows.i += rows.inc
 	if !next {
 		rows.err = rows.Close()
 	}

@@ -82,3 +82,10 @@ func dumpFitsTable(fname string) {
 }
 
 ```
+
+## TODO
+
+- add support for writing tables from structs
+- add support for writing tables from maps
+- add support for variable length array
+

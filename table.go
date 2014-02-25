@@ -460,6 +460,66 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 	return hdu, err
 }
 
+// NewTable creates a new table in the given FITS file
+func NewTable(f *File, name string, cols []Column, hdutype HDUType) (*Table, error) {
+	var err error
+	var table *Table
+	mode, err := f.Mode()
+	if err != nil {
+		return table, err
+	}
+	if mode == ReadOnly {
+		return table, READONLY_FILE
+	}
+
+	nhdus := len(f.hdus)
+
+	if len(cols) <= 0 {
+		return table, fmt.Errorf("cfitsio.NewTable: invalid number of columns (%v)", len(cols))
+	}
+
+	c_status := C.int(0)
+	c_sz := C.int(len(cols))
+	c_types := C.char_array_new(c_sz)
+	defer C.free(unsafe.Pointer(c_types))
+	c_forms := C.char_array_new(c_sz)
+	defer C.free(unsafe.Pointer(c_forms))
+	c_units := C.char_array_new(c_sz)
+	defer C.free(unsafe.Pointer(c_units))
+	c_hduname := C.CString(name)
+	defer C.free(unsafe.Pointer(c_hduname))
+
+	for i := 0; i < len(cols); i++ {
+		c_idx := C.int(i)
+		col := cols[i]
+		c_name := C.CString(col.Name)
+		defer C.free(unsafe.Pointer(c_name))
+		C.char_array_set(c_types, c_idx, c_name)
+
+		c_form := C.CString(col.Format)
+		defer C.free(unsafe.Pointer(c_form))
+		C.char_array_set(c_forms, c_idx, c_form)
+
+		c_unit := C.CString(col.Unit)
+		defer C.free(unsafe.Pointer(c_unit))
+		C.char_array_set(c_units, c_idx, c_unit)
+	}
+
+	C.fits_create_tbl(f.c, C.int(hdutype), 0, C.int(len(cols)), c_types, c_forms, c_units, c_hduname, &c_status)
+	if c_status > 0 {
+		return table, to_err(c_status)
+	}
+
+	hdu, err := f.readHDU(nhdus)
+	if err != nil {
+		return table, err
+	}
+	f.hdus = append(f.hdus, hdu)
+	table = hdu.(*Table)
+
+	return table, err
+}
+
 func init() {
 	g_hdus[ASCII_TBL] = newTable
 	g_hdus[BINARY_TBL] = newTable

@@ -29,6 +29,15 @@ func NewHeader(cards []Card, htype HDUType, bitpix int64, axes []int64) Header {
 	return hdr
 }
 
+func NewDefaultHeader() Header {
+	return NewHeader(
+		[]Card{},
+		IMAGE_HDU,
+		8,
+		[]int64{},
+	)
+}
+
 func (h *Header) AddComment(v string) {
 	panic("not implemented")
 }

@@ -114,6 +114,66 @@ func govalue_from_typecode(t TypeCode) Value {
 		var vv complex128
 		v = vv
 
+	case TVLABIT, TVLABYTE:
+		var vv = make([]byte, 0)
+		v = vv
+
+	case TVLASBYTE:
+		var vv = make([]int8, 0)
+		v = vv
+
+	case TVLALOGICAL:
+		var vv = make([]bool, 0)
+		v = vv
+
+	case TVLASTRING:
+		var vv = make([]string, 0)
+		v = vv
+
+	case TVLAUSHORT:
+		var vv = make([]uint16, 0)
+		v = vv
+
+	case TVLASHORT:
+		var vv = make([]int16, 0)
+		v = vv
+
+	case TVLAUINT:
+		var vv = make([]uint32, 0)
+		v = vv
+
+	case TVLAINT:
+		var vv = make([]int32, 0)
+		v = vv
+
+	case TVLAULONG:
+		var vv = make([]uint64, 0)
+		v = vv
+
+	case TVLALONG:
+		var vv = make([]int64, 0)
+		v = vv
+
+	case TVLAFLOAT:
+		var vv = make([]float32, 0)
+		v = vv
+
+	case TVLALONGLONG:
+		var vv = make([]int64, 0)
+		v = vv
+
+	case TVLADOUBLE:
+		var vv = make([]float64, 0)
+		v = vv
+
+	case TVLACOMPLEX:
+		var vv = make([]complex64, 0)
+		v = vv
+
+	case TVLADBLCOMPLEX:
+		var vv = make([]complex128, 0)
+		v = vv
+
 	default:
 		panic(fmt.Errorf("cfitsio: invalid TypeCode value [%v]", int(t)))
 	}

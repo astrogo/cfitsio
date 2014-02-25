@@ -69,7 +69,10 @@ func Open(fname string, mode Mode) (File, error) {
 }
 
 // Create creates and opens a new empty output FITS file.
-func Create(fname string) (f File, err error) {
+func Create(fname string) (File, error) {
+	var f File
+	var err error
+
 	c_status := C.int(0)
 	c_fname := C.CString(fname)
 	defer C.free(unsafe.Pointer(c_fname))
@@ -77,10 +80,12 @@ func Create(fname string) (f File, err error) {
 	C.fits_create_file(&f.c, c_fname, &c_status)
 	if c_status > 0 {
 		err = to_err(c_status)
-		return
+		return f, err
 	}
 
-	return
+	f.hdus = make([]HDU, 0)
+
+	return f, err
 }
 
 // Close closes a previously opened FITS file.

@@ -31,4 +31,12 @@ char_array_set(char** array, int idx, char *value)
   array[idx] = value;
 }
 
+static
+long*
+long_array_new(int sz)
+{
+  long *array = (long*)malloc(sz*sizeof(long));
+  return array;
+}
+
 #endif /* !GO_CFITSIO_UTILS_H */

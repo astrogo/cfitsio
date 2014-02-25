@@ -15,7 +15,7 @@ import (
 type Error int
 
 func (err Error) Error() string {
-	c_err := C.char_buf_array(C.FLEN_ERRMSG)
+	c_err := C.CStringN(C.FLEN_ERRMSG)
 	defer C.free(unsafe.Pointer(c_err))
 	C.ffgerr(C.int(err), c_err)
 	return fmt.Sprintf("cfitsio (err=%v) %q", int(err), C.GoString(c_err))

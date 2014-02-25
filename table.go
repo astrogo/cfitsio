@@ -297,7 +297,7 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 			c_status := C.int(0)
 			c_tmpl := C.CString(fmt.Sprintf("%d", ii+1))
 			defer C.free(unsafe.Pointer(c_tmpl))
-			c_name := C.char_buf_array(C.FLEN_CARD)
+			c_name := C.CStringN(C.FLEN_CARD)
 			defer C.free(unsafe.Pointer(c_name))
 			c_colnum := C.int(0)
 			C.fits_get_colname(f.c, C.CASESEN, c_tmpl, c_name, &c_colnum, &c_status)

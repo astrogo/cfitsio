@@ -6,10 +6,29 @@
 
 static
 char* 
-char_buf_array(int sz) 
+CStringN(int sz) 
 {
  char* array = (char*)malloc(sz*sizeof(char));
  return array;
+}
+
+static
+char**
+char_array_new(int sz)
+{
+  int i = 0;
+  char **array = (char**)malloc(sz*sizeof(char*));
+  for (i = 0; i < sz; i++) {
+    array[i] = NULL;
+  }
+  return array;
+}
+
+static
+void
+char_array_set(char** array, int idx, char *value)
+{
+  array[idx] = value;
 }
 
 #endif /* !GO_CFITSIO_UTILS_H */

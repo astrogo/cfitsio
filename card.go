@@ -93,11 +93,11 @@ func newCard(f *File, i int) (Card, error) {
 	var err error
 
 	c_status := C.int(0)
-	c_key := C.char_buf_array(C.FLEN_KEYWORD)
+	c_key := C.CStringN(C.FLEN_KEYWORD)
 	defer C.free(unsafe.Pointer(c_key))
-	c_value := C.char_buf_array(C.FLEN_VALUE)
+	c_value := C.CStringN(C.FLEN_VALUE)
 	defer C.free(unsafe.Pointer(c_value))
-	c_com := C.char_buf_array(C.FLEN_COMMENT)
+	c_com := C.CStringN(C.FLEN_COMMENT)
 	defer C.free(unsafe.Pointer(c_com))
 
 	c_keyn := C.int(i)

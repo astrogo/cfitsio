@@ -114,7 +114,7 @@ func (f *File) Delete() error {
 
 // Name returns the name of a FITS file
 func (f *File) Name() (string, error) {
-	c_name := C.char_buf_array(C.FLEN_FILENAME)
+	c_name := C.CStringN(C.FLEN_FILENAME)
 	defer C.free(unsafe.Pointer(c_name))
 	c_status := C.int(0)
 	C.fits_file_name(f.c, c_name, &c_status)
@@ -137,7 +137,7 @@ func (f *File) Mode() (Mode, error) {
 
 // UrlType returns the type of a FITS file (e.g. ftp:// or file://)
 func (f *File) UrlType() (string, error) {
-	c_url := C.char_buf_array(C.FLEN_VALUE)
+	c_url := C.CStringN(C.FLEN_VALUE)
 	defer C.free(unsafe.Pointer(c_url))
 	c_status := C.int(0)
 	C.fits_url_type(f.c, c_url, &c_status)

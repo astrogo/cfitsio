@@ -127,7 +127,7 @@ func (col *Column) read(f *File, icol int, irow int64) error {
 	case string:
 		c_type = C.TSTRING
 		// FIXME: get correct maximum size from card
-		c_value := C.char_buf_array(C.FLEN_FILENAME)
+		c_value := C.CStringN(C.FLEN_FILENAME)
 		defer C.free(unsafe.Pointer(c_value))
 		c_ptr := unsafe.Pointer(c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)

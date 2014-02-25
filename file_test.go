@@ -3,6 +3,7 @@ package cfitsio
 import (
 	"bytes"
 	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
@@ -371,6 +372,60 @@ func TestOpen(t *testing.T) {
 			t.Fatalf("#hdus. expected %v. got %v", len(table.hdus), len(f.HDUs()))
 		}
 	}
+}
+
+func TestCreateFile(t *testing.T) {
+	curdir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.Chdir(curdir)
+
+	workdir, err := ioutil.TempDir("", "go-cfitsio-test-")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.RemoveAll(workdir)
+
+	err = os.Chdir(workdir)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	fname := "new.fits"
+	f, err := Create(fname)
+	if err != nil {
+		t.Fatalf("error creating new file [%v]: %v", fname, err)
+	}
+	defer f.Close()
+
+	fmode, err := f.Mode()
+	if err != nil {
+		t.Fatalf("error mode: %v", err)
+	}
+	if fmode != ReadWrite {
+		t.Fatalf("expected file-mode [%v]. got [%v]", ReadWrite, fmode)
+	}
+
+	name, err := f.Name()
+	if err != nil {
+		t.Fatalf("error name: %v", err)
+	}
+	if name != fname {
+		t.Fatalf("expected file-name [%v]. got [%v]", fname, name)
+	}
+
+	furl, err := f.UrlType()
+	if err != nil {
+		t.Fatalf("error url: %v", err)
+	}
+	if furl != "file://" {
+		t.Fatalf("expected file-url [%v]. got [%v]", "file://", furl)
+	}
+	if len(f.HDUs()) != 0 {
+		t.Fatalf("#hdus. expected %v. got %v", 0, len(f.HDUs()))
+	}
+
 }
 
 // EOF

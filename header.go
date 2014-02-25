@@ -30,11 +30,11 @@ func NewHeader(cards []Card, htype HDUType, bitpix int64, axes []int64) Header {
 }
 
 func (h *Header) AddComment(v string) {
-
+	panic("not implemented")
 }
 
 func (h *Header) AddHistory(v string) {
-
+	panic("not implemented")
 }
 
 func (h *Header) Append(cards ...Card) *Header {

@@ -37,12 +37,12 @@ func (h *Header) AddHistory(v string) {
 
 }
 
-func (h *Header) Append(cards ...Card) Header {
+func (h *Header) Append(cards ...Card) *Header {
 	h.slice = append(h.slice, cards...)
 	for i := range h.slice {
 		h.cards[h.slice[i].Name] = i
 	}
-	return *h
+	return h
 }
 
 func (h *Header) Clear() {

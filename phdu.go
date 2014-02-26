@@ -48,8 +48,8 @@ func NewPrimaryHDU(f *File, hdr Header) (HDU, error) {
 
 	naxes := len(hdr.axes)
 	c_naxes := C.int(naxes)
-	c_axes := C.long_array_new(c_naxes)
-	defer C.free(unsafe.Pointer(c_axes))
+	slice := (*reflect.SliceHeader)((unsafe.Pointer(&hdr.axes)))
+	c_axes := (*C.long)(unsafe.Pointer(slice.Data))
 	c_status := C.int(0)
 
 	C.fits_create_img(f.c, C.int(hdr.bitpix), c_naxes, c_axes, &c_status)

@@ -173,12 +173,19 @@ func parseRecord(name, value, comment string, card *Card) error {
 		card.Value = vv
 
 	case 'X':
-		var vv complex128
-		_, err = fmt.Scanf(value, &vv)
+		toks := strings.Split(value[1:len(value)-1], ",")
+		var vv0 float64
+		vv0, err = strconv.ParseFloat(strings.Trim(toks[0], " \t\n"), 64)
 		if err != nil {
 			return err
 		}
-		card.Value = vv
+		var vv1 float64
+		vv1, err = strconv.ParseFloat(strings.Trim(toks[1], " \t\n"), 64)
+		if err != nil {
+			return err
+		}
+
+		card.Value = complex(vv0, vv1)
 
 	case 'C':
 		card.Value = strings.TrimRight(value, " ")

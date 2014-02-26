@@ -80,6 +80,11 @@ func (hdu *ImageHDU) load(v reflect.Value) error {
 		data := rv.Interface().([]byte)
 		c_ptr = unsafe.Pointer(&data[0])
 
+	case []int8:
+		c_imgtype = C.TBYTE
+		data := rv.Interface().([]int8)
+		c_ptr = unsafe.Pointer(&data[0])
+
 	case []int16:
 		c_imgtype = C.TSHORT
 		data := rv.Interface().([]int16)
@@ -145,6 +150,11 @@ func (hdu *ImageHDU) Write(data interface{}) error {
 	case []byte:
 		c_imgtype = C.TBYTE
 		data := rv.Interface().([]byte)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []int8:
+		c_imgtype = C.TBYTE
+		data := rv.Interface().([]int8)
 		c_ptr = unsafe.Pointer(&data[0])
 
 	case []int16:

@@ -84,6 +84,11 @@ func NewPrimaryHDU(f *File, hdr Header) (HDU, error) {
 			c_type = C.TULONG
 			c_ptr = unsafe.Pointer(&v)
 
+		case uint:
+			c_type = C.TULONG
+			c_value := C.ulong(v)
+			c_ptr = unsafe.Pointer(&c_value)
+
 		case int8:
 			c_type = C.TSBYTE
 			c_ptr = unsafe.Pointer(&v)
@@ -99,6 +104,11 @@ func NewPrimaryHDU(f *File, hdr Header) (HDU, error) {
 		case int64:
 			c_type = C.TLONG
 			c_ptr = unsafe.Pointer(&v)
+
+		case int:
+			c_type = C.TLONG
+			c_value := C.long(v)
+			c_ptr = unsafe.Pointer(&c_value)
 
 		case float32:
 			c_type = C.TFLOAT

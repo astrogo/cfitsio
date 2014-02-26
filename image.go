@@ -118,7 +118,10 @@ func (hdu *ImageHDU) load(v reflect.Value) error {
 		return to_err(c_status)
 	}
 
-	v.Set(rv)
+	n := reflect.Copy(v, rv)
+	if n != nelmts {
+		err = fmt.Errorf("cfitsio: copied [%v] elements. expected [%v]", n, nelmts)
+	}
 	return err
 }
 

@@ -44,6 +44,16 @@ func TestCreatePHDU(t *testing.T) {
 			if hdr.bitpix != 8 {
 				t.Fatalf("expected BITPIX=%v. got %v", 8, hdr.bitpix)
 			}
+
+			name := phdu.Name()
+			if name != "PRIMARY" {
+				t.Fatalf("expected EXTNAME==%v. got %v", "PRIMARY", name)
+			}
+
+			vers := phdu.Version()
+			if vers != 1 {
+				t.Fatalf("expected EXTVER==%v. got %v", 1, vers)
+			}
 		},
 		// read-back
 		func() {
@@ -57,6 +67,16 @@ func TestCreatePHDU(t *testing.T) {
 			hdr := hdu.Header()
 			if hdr.bitpix != 8 {
 				t.Fatalf("expected BITPIX=%v. got %v", 8, hdr.bitpix)
+			}
+
+			name := hdu.Name()
+			if name != "PRIMARY" {
+				t.Fatalf("expected EXTNAME==%v. got %v", "PRIMARY", name)
+			}
+
+			vers := hdu.Version()
+			if vers != 1 {
+				t.Fatalf("expected EXTVER==%v. got %v", 1, vers)
 			}
 		},
 	} {

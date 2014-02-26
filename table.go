@@ -5,6 +5,7 @@ package cfitsio
 import "C"
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -518,6 +519,41 @@ func NewTable(f *File, name string, cols []Column, hdutype HDUType) (*Table, err
 	table = hdu.(*Table)
 
 	return table, err
+}
+
+// Write writes a row to the table
+func (hdu *Table) Write(args ...interface{}) error {
+
+	switch len(args) {
+	case 0:
+		return fmt.Errorf("cfitsio: Table.Write needs at least one argument")
+	case 1:
+		// maybe special case: map? struct?
+		rt := reflect.TypeOf(args[0]).Elem()
+		switch rt.Kind() {
+		case reflect.Map:
+			return hdu.writeMap(*args[0].(*map[string]interface{}))
+		case reflect.Struct:
+			return hdu.writeStruct(args[0])
+		}
+	}
+
+	return hdu.write(args...)
+}
+
+func (hdu *Table) writeMap(data map[string]interface{}) error {
+	var err error
+	return err
+}
+
+func (hdu *Table) writeStruct(data interface{}) error {
+	var err error
+	return err
+}
+
+func (hdu *Table) write(args ...interface{}) error {
+	var err error
+	return err
 }
 
 func init() {

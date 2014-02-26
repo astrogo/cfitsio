@@ -6,6 +6,7 @@ import "C"
 
 import (
 	"fmt"
+	"reflect"
 	"unsafe"
 )
 
@@ -27,7 +28,8 @@ func (hdu *PrimaryHDU) Version() int {
 	if card == nil {
 		return 1
 	}
-	return card.Value.(int)
+	rv := reflect.ValueOf(card.Value)
+	return int(rv.Int())
 }
 
 func newPrimaryHDU(f *File, hdr Header) (HDU, error) {

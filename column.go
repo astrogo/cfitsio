@@ -142,6 +142,103 @@ func (col *Column) read(f *File, icol int, irow int64) error {
 	return err
 }
 
+func (col *Column) write(f *File, icol int, irow int64) error {
+	var err error
+
+	c_type := C.int(0)
+	c_icol := C.int(icol + 1)      // 0-based to 1-based index
+	c_irow := C.LONGLONG(irow + 1) // 0-based to 1-based index
+	c_status := C.int(0)
+
+	switch col.Value.(type) {
+	case byte:
+		c_type = C.TBYTE
+		c_value := C.char(col.Value.(byte))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case uint16:
+		c_type = C.TUSHORT
+		c_value := C.ushort(col.Value.(uint16))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case uint32:
+		c_type = C.TUINT
+		c_value := C.uint(col.Value.(uint32))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case uint64:
+		c_type = C.TULONG
+		c_value := C.ulong(col.Value.(uint64))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case int8:
+		c_type = C.TSBYTE
+		c_value := C.char(col.Value.(int8))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case int16:
+		c_type = C.TSHORT
+		c_value := C.short(col.Value.(int16))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case int32:
+		c_type = C.TINT
+		c_value := C.int(col.Value.(int32))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case int64:
+		c_type = C.TLONG
+		c_value := C.long(col.Value.(int64))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case float32:
+		c_type = C.TFLOAT
+		c_value := C.float(col.Value.(float32))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case float64:
+		c_type = C.TDOUBLE
+		c_value := C.double(col.Value.(float64))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case complex64:
+		c_type = C.TCOMPLEX
+		vv := col.Value.(complex64)
+		c_ptr := unsafe.Pointer(&vv) // FIXME: assumes same memory layout
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case complex128:
+		c_type = C.TDBLCOMPLEX
+		vv := col.Value.(complex128)
+		c_ptr := unsafe.Pointer(&vv) // FIXME: assumes same memory layout
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case string:
+		c_type = C.TSTRING
+		c_value := C.CString(col.Value.(string))
+		defer C.free(unsafe.Pointer(c_value))
+		c_ptr := unsafe.Pointer(c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	}
+
+	if c_status > 0 {
+		err = to_err(c_status)
+	}
+
+	return err
+}
+
 // ColDefs is a list of Column definitions
 type ColDefs []Column
 

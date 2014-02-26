@@ -548,6 +548,31 @@ func (hdu *Table) writeMap(data map[string]interface{}) error {
 
 func (hdu *Table) writeStruct(data interface{}) error {
 	var err error
+	rt := reflect.TypeOf(data).Elem()
+	rv := reflect.ValueOf(data).Elem()
+	icols := make([][2]int, 0, rt.NumField())
+	for i := 0; i < rt.NumField(); i++ {
+		f := rt.Field(i)
+		n := f.Tag.Get("fits")
+		if n == "" {
+			n = f.Name
+		}
+		icol := hdu.Index(n)
+		if icol >= 0 {
+			icols = append(icols, [2]int{i, icol})
+		}
+	}
+
+	irow := hdu.NumRows()
+
+	for _, icol := range icols {
+		vv := reflect.ValueOf(hdu.cols[icol[1]].Value)
+		vv.Field(icol[0]).Set(rv)
+		err = hdu.cols[icol[1]].write(hdu.f, icol[1], irow)
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 

@@ -130,7 +130,7 @@ func NewPrimaryHDU(f *File, hdr Header) (HDU, error) {
 			c_type = C.TSTRING
 			c_value := C.CString(v)
 			defer C.free(unsafe.Pointer(c_value))
-			c_ptr = unsafe.Pointer(&v)
+			c_ptr = unsafe.Pointer(c_value)
 
 		default:
 			panic(fmt.Errorf("cfitsio: invalid card type (%T)", v))

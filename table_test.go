@@ -709,6 +709,234 @@ func TestTableRW(t *testing.T) {
 				18, 19, 10, 11,
 			},
 		},
+		// binary table
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "int8s",
+					Format: "i8",
+					Value:  int8(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []int8{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "int16s",
+					Format: "i16",
+					Value:  int16(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []int16{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "int32s",
+					Format: "i32",
+					Value:  int32(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []int32{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "int64s",
+					Format: "i64",
+					Value:  int64(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []int64{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "ints",
+					Format: "i64",
+					Value:  int(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []int{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint8s",
+					Format: "b",
+					Value:  uint8(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []uint8{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint16s",
+					Format: "i16",
+					Value:  uint16(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []uint16{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint32s",
+					Format: "i32",
+					Value:  uint32(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []uint32{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint64s",
+					Format: "i64",
+					Value:  uint64(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []uint64{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uints",
+					Format: "i64",
+					Value:  uint(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []uint{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "float32s",
+					Format: "e",
+					Value:  float32(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []float32{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "float64s",
+					Format: "d",
+					Value:  float64(42),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []float64{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "cplx64s",
+					Format: "64M",
+					Value:  complex(float32(42), float32(42)),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []complex64{
+				complex(float32(10), float32(10)), complex(float32(11), float32(11)),
+				complex(float32(12), float32(12)), complex(float32(13), float32(13)),
+				complex(float32(14), float32(14)), complex(float32(15), float32(15)),
+				complex(float32(16), float32(16)), complex(float32(17), float32(17)),
+				complex(float32(18), float32(18)), complex(float32(19), float32(19)),
+				complex(float32(10), float32(10)), complex(float32(11), float32(11)),
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "cplx128s",
+					Format: "128M",
+					Value:  complex(float64(42), float64(42)),
+				},
+			},
+			htype: BINARY_TBL,
+			table: []complex128{
+				complex(10, 10), complex(11, 11), complex(12, 12), complex(13, 13),
+				complex(14, 14), complex(15, 15), complex(16, 16), complex(17, 17),
+				complex(18, 18), complex(19, 19), complex(10, 10), complex(11, 11),
+			},
+		},
 	} {
 		fname := fmt.Sprintf("%03d_%s", ii, table.name)
 		for _, fct := range []func(){

@@ -1,6 +1,9 @@
 package cfitsio
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -475,6 +478,93 @@ func TestTableScanStruct(t *testing.T) {
 			if count != nrows {
 				t.Fatalf("rows.Next: expected [%d] rows. got %d.", nrows, count)
 			}
+		}
+	}
+}
+
+func TestTableRW(t *testing.T) {
+
+	curdir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.Chdir(curdir)
+
+	workdir, err := ioutil.TempDir("", "go-cfitsio-test-")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.RemoveAll(workdir)
+
+	err = os.Chdir(workdir)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	for ii, table := range []struct {
+		name  string
+		cols  []Column
+		htype HDUType
+		table interface{}
+	}{
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "int8s",
+					Value: int8(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []int8{
+				0, 1, 2, 3,
+				4, 5, 6, 7,
+				8, 9, 0, 1,
+			},
+		},
+	} {
+		fname := fmt.Sprintf("%03d_%s", ii, table.name)
+		for _, fct := range []func(){
+			// create
+			func() {
+				f, err := Create(fname)
+				if err != nil {
+					t.Fatalf("error creating new file [%v]: %v", fname, err)
+				}
+				defer f.Close()
+
+				phdu, err := NewPrimaryHDU(&f, NewDefaultHeader())
+				if err != nil {
+					t.Fatalf("error creating PHDU: %v", err)
+				}
+				defer phdu.Close()
+
+				tbl, err := NewTable(&f, "test", table.cols, table.htype)
+				if err != nil {
+					t.Fatalf("error creating new table: %v", err)
+				}
+				defer tbl.Close()
+
+				// for _, data := range table.data {
+				// 	err = tbl.Write(data)
+				// }
+			},
+			// read
+			func() {
+				f, err := Open(fname, ReadOnly)
+				if err != nil {
+					t.Fatalf("error opening file [%v]: %v", fname, err)
+				}
+				defer f.Close()
+
+				hdu := f.HDU(1)
+				tbl := hdu.(*Table)
+				if tbl.Name() != "test" {
+					t.Fatalf("expected table name==%q. got %q", "test", tbl.Name())
+				}
+			},
+		} {
+			fct()
 		}
 	}
 }

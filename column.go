@@ -4,7 +4,11 @@ package cfitsio
 // #include "go-cfitsio.h"
 // #include "go-cfitsio-utils.h"
 import "C"
-import "unsafe"
+import (
+	"fmt"
+	"reflect"
+	"unsafe"
+)
 
 // Value is a value in a FITS table
 type Value interface{}
@@ -24,7 +28,7 @@ type Column struct {
 	Value   Value   // value at current row
 }
 
-func (col *Column) read(f *File, icol int, irow int64) error {
+func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 	var err error
 
 	c_type := C.int(0)
@@ -33,83 +37,99 @@ func (col *Column) read(f *File, icol int, irow int64) error {
 	c_anynul := C.int(0)
 	c_status := C.int(0)
 
-	switch col.Value.(type) {
+	rv := reflect.ValueOf(ptr).Elem()
+	value := rv.Interface()
+	switch value.(type) {
 	case byte:
 		c_type = C.TBYTE
 		var c_value C.char
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = byte(c_value)
+		value = byte(c_value)
 
 	case uint16:
 		c_type = C.TUSHORT
 		var c_value C.ushort
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = uint16(c_value)
+		value = uint16(c_value)
 
 	case uint32:
 		c_type = C.TUINT
 		var c_value C.uint
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = uint32(c_value)
+		value = uint32(c_value)
 
 	case uint64:
 		c_type = C.TULONG
 		var c_value C.ulong
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = uint64(c_value)
+		value = uint64(c_value)
+
+	case uint:
+		c_type = C.TULONG
+		var c_value C.ulong
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
+		value = uint(c_value)
 
 	case int8:
 		c_type = C.TSBYTE
 		var c_value C.char
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = int8(c_value)
+		value = int8(c_value)
 
 	case int16:
 		c_type = C.TSHORT
 		var c_value C.short
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = int16(c_value)
+		value = int16(c_value)
 
 	case int32:
 		c_type = C.TINT
 		var c_value C.int
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = int32(c_value)
+		value = int32(c_value)
 
 	case int64:
 		c_type = C.TLONG
 		var c_value C.long
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = int64(c_value)
+		value = int64(c_value)
+
+	case int:
+		c_type = C.TLONG
+		var c_value C.long
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
+		value = int(c_value)
 
 	case float32:
 		c_type = C.TFLOAT
 		var c_value C.float
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = float32(c_value)
+		value = float32(c_value)
 
 	case float64:
 		c_type = C.TDOUBLE
 		var c_value C.double
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = float64(c_value)
+		value = float64(c_value)
 
 	case complex64:
 		c_type = C.TCOMPLEX
 		var c_value C.complexfloat
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = complex(
+		value = complex(
 			float32(C.crealf(c_value)),
 			float32(C.cimagf(c_value)),
 		)
@@ -119,7 +139,7 @@ func (col *Column) read(f *File, icol int, irow int64) error {
 		var c_value C.complexdouble
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = complex(
+		value = complex(
 			float64(C.creal(c_value)),
 			float64(C.cimag(c_value)),
 		)
@@ -131,14 +151,18 @@ func (col *Column) read(f *File, icol int, irow int64) error {
 		defer C.free(unsafe.Pointer(c_value))
 		c_ptr := unsafe.Pointer(c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
-		col.Value = C.GoString(c_value)
+		value = C.GoString(c_value)
 
+	default:
+		panic(fmt.Errorf("invalid type [%T]", value))
 	}
 
 	if c_status > 0 {
 		err = to_err(c_status)
 	}
 
+	rv.Set(reflect.ValueOf(value))
+	col.Value = value
 	return err
 }
 
@@ -175,6 +199,12 @@ func (col *Column) write(f *File, icol int, irow int64) error {
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
+	case uint:
+		c_type = C.TULONG
+		c_value := C.ulong(col.Value.(uint))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
 	case int8:
 		c_type = C.TSBYTE
 		c_value := C.char(col.Value.(int8))
@@ -196,6 +226,12 @@ func (col *Column) write(f *File, icol int, irow int64) error {
 	case int64:
 		c_type = C.TLONG
 		c_value := C.long(col.Value.(int64))
+		c_ptr := unsafe.Pointer(&c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
+	case int:
+		c_type = C.TLONG
+		c_value := C.long(col.Value.(int))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 

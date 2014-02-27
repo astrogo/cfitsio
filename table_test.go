@@ -261,8 +261,7 @@ func TestTableScan(t *testing.T) {
 				for ii, vv := range table.tuple[i][count] {
 					rt := reflect.TypeOf(vv)
 					rv := reflect.New(rt)
-					rrv := reflect.Indirect(rv)
-					xx := rrv.Interface()
+					xx := rv.Interface()
 					data[ii] = xx
 					ref[ii] = vv
 				}
@@ -271,13 +270,14 @@ func TestTableScan(t *testing.T) {
 					t.Fatalf("rows.Scan: %v", err)
 				}
 				// check data just read in is ok
-				if !reflect.DeepEqual(data, ref) {
-					t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", ref, data)
-				}
 				// check columns data is ok
 				for ii, vv := range data {
-					if !reflect.DeepEqual(vv, hdu.Col(ii).Value) {
-						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", hdu.Col(ii).Value, vv)
+					rv := reflect.ValueOf(vv).Elem().Interface()
+					if !reflect.DeepEqual(rv, hdu.Col(ii).Value) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", hdu.Col(ii).Value, rv)
+					}
+					if !reflect.DeepEqual(rv, ref[ii]) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", ref[ii], rv)
 					}
 				}
 				// modify value of first column
@@ -287,12 +287,22 @@ func TestTableScan(t *testing.T) {
 				case int16:
 					hdu.Col(0).Value = 1 + vv
 				}
-				// check data is still ok
-				if !reflect.DeepEqual(data, ref) {
-					t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", ref, data)
+				// check data just read in is ok
+				// check columns data is ok
+				for ii, vv := range data {
+					if ii == 0 {
+						continue
+					}
+					rv := reflect.ValueOf(vv).Elem().Interface()
+					if !reflect.DeepEqual(rv, hdu.Col(ii).Value) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", hdu.Col(ii).Value, rv)
+					}
+					if !reflect.DeepEqual(rv, ref[ii]) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v", ref[ii], rv)
+					}
 				}
 				// but column data has changed
-				if reflect.DeepEqual(data[0], hdu.Col(0).Value) {
+				if reflect.DeepEqual(reflect.ValueOf(data[0]).Elem().Interface(), hdu.Col(0).Value) {
 					t.Fatalf("expected different values!")
 				}
 				count++
@@ -511,15 +521,192 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:  "int8s",
-					Value: int8(42),
+					Name:   "int8s",
+					Format: "i8",
+					Value:  int8(42),
 				},
 			},
 			htype: ASCII_TBL,
 			table: []int8{
-				0, 1, 2, 3,
-				4, 5, 6, 7,
-				8, 9, 0, 1,
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "int16s",
+					Format: "i16",
+					Value:  int16(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []int16{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "int32s",
+					Format: "i32",
+					Value:  int32(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []int32{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "int64s",
+					Format: "i64",
+					Value:  int64(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []int64{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "ints",
+					Format: "i64",
+					Value:  int(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []int{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint8s",
+					Format: "i8",
+					Value:  uint8(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []uint8{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint16s",
+					Format: "i16",
+					Value:  uint16(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []uint16{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint32s",
+					Format: "i32",
+					Value:  uint32(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []uint32{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uint64s",
+					Format: "i64",
+					Value:  uint64(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []uint64{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "uints",
+					Format: "i64",
+					Value:  uint(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []uint{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "float32s",
+					Format: "f32",
+					Value:  float32(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []float32{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:   "float64s",
+					Format: "f64",
+					Value:  float64(42),
+				},
+			},
+			htype: ASCII_TBL,
+			table: []float64{
+				10, 11, 12, 13,
+				14, 15, 16, 17,
+				18, 19, 10, 11,
 			},
 		},
 	} {
@@ -545,9 +732,19 @@ func TestTableRW(t *testing.T) {
 				}
 				defer tbl.Close()
 
-				// for _, data := range table.data {
-				// 	err = tbl.Write(data)
-				// }
+				rslice := reflect.ValueOf(table.table)
+				for i := 0; i < rslice.Len(); i++ {
+					data := rslice.Index(i).Addr()
+					err = tbl.Write(data.Interface())
+					if err != nil {
+						t.Fatalf("error writing row [%v]: %v", i, err)
+					}
+				}
+
+				nrows := tbl.NumRows()
+				if nrows != int64(rslice.Len()) {
+					t.Fatalf("expected num rows [%v]. got [%v] (%v)", rslice.Len(), nrows, table.cols[0].Name)
+				}
 			},
 			// read
 			func() {
@@ -561,6 +758,35 @@ func TestTableRW(t *testing.T) {
 				tbl := hdu.(*Table)
 				if tbl.Name() != "test" {
 					t.Fatalf("expected table name==%q. got %q", "test", tbl.Name())
+				}
+
+				rslice := reflect.ValueOf(table.table)
+				nrows := tbl.NumRows()
+				if nrows != int64(rslice.Len()) {
+					t.Fatalf("expected num rows [%v]. got [%v]", rslice.Len(), nrows)
+				}
+
+				rows, err := tbl.Read(0, nrows)
+				if err != nil {
+					t.Fatalf("table.Read: %v", err)
+				}
+				count := int64(0)
+				for rows.Next() {
+					ref := rslice.Index(int(count)).Interface()
+					rt := reflect.TypeOf(ref)
+					data := reflect.New(rt).Elem().Interface()
+					err = rows.Scan(&data)
+					if err != nil {
+						t.Fatalf("rows.Scan: %v", err)
+					}
+					// check data just read in is ok
+					if !reflect.DeepEqual(data, ref) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v (%T)", ref, data, data)
+					}
+					count++
+				}
+				if count != nrows {
+					t.Fatalf("expected [%v] rows. got [%v]", nrows, count)
 				}
 			},
 		} {

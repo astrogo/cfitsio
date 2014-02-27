@@ -84,11 +84,20 @@ func (rows *Rows) scan(args ...interface{}) error {
 		)
 	}
 	for i, icol := range rows.cols {
-		err = rows.table.cols[icol].read(rows.table.f, icol, rows.cur)
+		// if rows.table.cols[icol].Name == "int8s" {
+		// 	rv := reflect.ValueOf(args[i]).Elem().Interface()
+		// 	fmt.Printf(">>>[%v]: [%v](%T) [%v](%T)\n", rows.cur,
+		// 		rows.table.cols[icol].Value, rows.table.cols[icol].Value,
+		// 		rv, rv)
+		// }
+		err = rows.table.cols[icol].read(rows.table.f, icol, rows.cur, args[i])
 		if err != nil {
 			return err
 		}
-		args[i] = rows.table.cols[icol].Value
+		// if rows.table.cols[icol].Name == "int8s" {
+		// 	rv := reflect.ValueOf(args[i]).Elem().Interface()
+		// 	fmt.Printf("<<<[%v]: [%v] [%v]\n", rows.cur, rows.table.cols[icol].Value, rv)
+		// }
 	}
 	return err
 }
@@ -96,7 +105,8 @@ func (rows *Rows) scan(args ...interface{}) error {
 func (rows *Rows) scanAll() error {
 	var err error
 	for _, icol := range rows.cols {
-		err = rows.table.cols[icol].read(rows.table.f, icol, rows.cur)
+		col := &rows.table.cols[icol]
+		err = col.read(rows.table.f, icol, rows.cur, &col.Value)
 		if err != nil {
 			return err
 		}
@@ -116,11 +126,11 @@ func (rows *Rows) scanMap(data map[string]interface{}) error {
 	}
 	for _, icol := range icols {
 		col := rows.table.Col(icol)
-		err = rows.table.cols[icol].read(rows.table.f, icol, rows.cur)
+		err = col.read(rows.table.f, icol, rows.cur, &col.Value)
 		if err != nil {
 			return err
 		}
-		data[col.Name] = rows.table.cols[icol].Value
+		data[col.Name] = col.Value
 	}
 
 	return err
@@ -145,11 +155,12 @@ func (rows *Rows) scanStruct(data interface{}) error {
 	}
 
 	for _, icol := range icols {
-		err = rows.table.cols[icol[1]].read(rows.table.f, icol[1], rows.cur)
+		col := &rows.table.cols[icol[1]]
+		err = col.read(rows.table.f, icol[1], rows.cur, &col.Value)
 		if err != nil {
 			return err
 		}
-		vv := reflect.ValueOf(rows.table.cols[icol[1]].Value)
+		vv := reflect.ValueOf(col.Value)
 		rv.Field(icol[0]).Set(vv)
 	}
 	return err

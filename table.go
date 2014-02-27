@@ -264,7 +264,8 @@ func (hdu *Table) readRow(irow int64) error {
 		return err
 	}
 	for icol := range hdu.cols {
-		err = hdu.cols[icol].read(hdu.f, icol, irow)
+		col := &hdu.cols[icol]
+		err = col.read(hdu.f, icol, irow, &col.Value)
 		if err != nil {
 			return err
 		}
@@ -524,6 +525,24 @@ func NewTable(f *File, name string, cols []Column, hdutype HDUType) (*Table, err
 // Write writes a row to the table
 func (hdu *Table) Write(args ...interface{}) error {
 
+	err := hdu.seekHDU()
+	if err != nil {
+		return err
+	}
+
+	irow := hdu.NumRows()
+
+	defer func() {
+		// update nrows
+		c_nrows := C.long(0)
+		c_status := C.int(0)
+		C.fits_get_num_rows(hdu.f.c, &c_nrows, &c_status)
+		if c_status > 0 {
+			return
+		}
+		hdu.nrows = int64(c_nrows)
+	}()
+
 	switch len(args) {
 	case 0:
 		return fmt.Errorf("cfitsio: Table.Write needs at least one argument")
@@ -532,21 +551,21 @@ func (hdu *Table) Write(args ...interface{}) error {
 		rt := reflect.TypeOf(args[0]).Elem()
 		switch rt.Kind() {
 		case reflect.Map:
-			return hdu.writeMap(*args[0].(*map[string]interface{}))
+			return hdu.writeMap(irow, *args[0].(*map[string]interface{}))
 		case reflect.Struct:
-			return hdu.writeStruct(args[0])
+			return hdu.writeStruct(irow, args[0])
 		}
 	}
 
-	return hdu.write(args...)
+	return hdu.write(irow, args...)
 }
 
-func (hdu *Table) writeMap(data map[string]interface{}) error {
+func (hdu *Table) writeMap(irow int64, data map[string]interface{}) error {
 	var err error
 	return err
 }
 
-func (hdu *Table) writeStruct(data interface{}) error {
+func (hdu *Table) writeStruct(irow int64, data interface{}) error {
 	var err error
 	rt := reflect.TypeOf(data).Elem()
 	rv := reflect.ValueOf(data).Elem()
@@ -563,8 +582,6 @@ func (hdu *Table) writeStruct(data interface{}) error {
 		}
 	}
 
-	irow := hdu.NumRows()
-
 	for _, icol := range icols {
 		vv := reflect.ValueOf(hdu.cols[icol[1]].Value)
 		vv.Field(icol[0]).Set(rv)
@@ -576,8 +593,24 @@ func (hdu *Table) writeStruct(data interface{}) error {
 	return err
 }
 
-func (hdu *Table) write(args ...interface{}) error {
+func (hdu *Table) write(irow int64, args ...interface{}) error {
 	var err error
+
+	nargs := len(args)
+	if nargs > len(hdu.cols) {
+		nargs = len(hdu.cols)
+	}
+
+	for i := 0; i < nargs; i++ {
+		col := &hdu.cols[i]
+		rv := reflect.ValueOf(args[i]).Elem()
+		vv := reflect.ValueOf(&col.Value).Elem()
+		vv.Set(rv)
+		err = col.write(hdu.f, i, irow)
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 

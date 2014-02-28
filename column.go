@@ -28,6 +28,134 @@ type Column struct {
 	Value   Value   // value at current row
 }
 
+func (col *Column) inferFormat(htype HDUType) error {
+	var err error
+	if col.Format != "" {
+		return nil
+	}
+
+	switch col.Value.(type) {
+	case bool:
+		if htype == BINARY_TBL {
+			col.Format = "L"
+			return nil
+		} else {
+			// FIXME. panic ?
+			return nil
+		}
+
+	case byte:
+		if htype == BINARY_TBL {
+			col.Format = "B"
+		} else {
+			col.Format = "I8"
+		}
+
+	case uint16:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I16"
+		}
+
+	case uint32:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I32"
+		}
+
+	case uint64:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I64"
+		}
+
+	case uint:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I64"
+		}
+
+	case int8:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I8"
+		}
+
+	case int16:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I16"
+		}
+
+	case int32:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I32"
+		}
+
+	case int64:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I64"
+		}
+
+	case int:
+		if htype == BINARY_TBL {
+			col.Format = "I"
+		} else {
+			col.Format = "I64"
+		}
+
+	case float32:
+		if htype == BINARY_TBL {
+			col.Format = "E"
+		} else {
+			col.Format = "f32"
+		}
+
+	case float64:
+		if htype == BINARY_TBL {
+			col.Format = "D"
+		} else {
+			col.Format = "F64"
+		}
+
+	case complex64:
+		if htype == BINARY_TBL {
+			col.Format = "64M"
+		} else {
+			//FIXME: panic ?
+			col.Format = ""
+			return fmt.Errorf("cfitsio: ASCII_TBL can not handle [%T]", col.Value)
+		}
+
+	case complex128:
+		if htype == BINARY_TBL {
+			col.Format = "128M"
+		} else {
+			//FIXME: panic ?
+			col.Format = ""
+			return fmt.Errorf("cfitsio: ASCII_TBL can not handle [%T]", col.Value)
+		}
+
+	case string:
+		if htype == BINARY_TBL {
+			col.Format = "16A"
+		} else {
+			col.Format = "A16"
+		}
+	}
+	return err
+}
+
 func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 	var err error
 
@@ -40,6 +168,14 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 	rv := reflect.ValueOf(ptr).Elem()
 	value := rv.Interface()
 	switch value.(type) {
+	case bool:
+		c_type = C.TLOGICAL
+		c_value := C.CStringN(C.FLEN_FILENAME)
+		defer C.free(unsafe.Pointer(c_value))
+		c_ptr := unsafe.Pointer(c_value)
+		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
+		value = C.GoString(c_value) == "T"
+
 	case byte:
 		c_type = C.TBYTE
 		var c_value C.char
@@ -175,6 +311,16 @@ func (col *Column) write(f *File, icol int, irow int64) error {
 	c_status := C.int(0)
 
 	switch col.Value.(type) {
+	case bool:
+		c_type = C.TLOGICAL
+		c_value := C.CString("F")
+		defer C.free(unsafe.Pointer(c_value))
+		if col.Value.(bool) {
+			c_value = C.CString("T")
+		}
+		c_ptr := unsafe.Pointer(c_value)
+		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
+
 	case byte:
 		c_type = C.TBYTE
 		c_value := C.char(col.Value.(byte))

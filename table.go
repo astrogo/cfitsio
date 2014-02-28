@@ -493,11 +493,15 @@ func NewTable(f *File, name string, cols []Column, hdutype HDUType) (*Table, err
 
 	for i := 0; i < len(cols); i++ {
 		c_idx := C.int(i)
-		col := cols[i]
+		col := &cols[i]
 		c_name := C.CString(col.Name)
 		defer C.free(unsafe.Pointer(c_name))
 		C.char_array_set(c_types, c_idx, c_name)
 
+		err = col.inferFormat(hdutype)
+		if err != nil {
+			return table, err
+		}
 		c_form := C.CString(col.Format)
 		defer C.free(unsafe.Pointer(c_form))
 		C.char_array_set(c_forms, c_idx, c_form)

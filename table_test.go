@@ -521,9 +521,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int8s",
-					Format: "i8",
-					Value:  int8(42),
+					Name:  "int8s",
+					Value: int8(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -537,9 +536,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int16s",
-					Format: "i16",
-					Value:  int16(42),
+					Name:  "int16s",
+					Value: int16(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -553,9 +551,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int32s",
-					Format: "i32",
-					Value:  int32(42),
+					Name:  "int32s",
+					Value: int32(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -569,9 +566,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int64s",
-					Format: "i64",
-					Value:  int64(42),
+					Name:  "int64s",
+					Value: int64(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -585,9 +581,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "ints",
-					Format: "i64",
-					Value:  int(42),
+					Name:  "ints",
+					Value: int(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -601,9 +596,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint8s",
-					Format: "i8",
-					Value:  uint8(42),
+					Name:  "uint8s",
+					Value: uint8(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -617,9 +611,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint16s",
-					Format: "i16",
-					Value:  uint16(42),
+					Name:  "uint16s",
+					Value: uint16(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -633,9 +626,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint32s",
-					Format: "i32",
-					Value:  uint32(42),
+					Name:  "uint32s",
+					Value: uint32(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -649,9 +641,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint64s",
-					Format: "i64",
-					Value:  uint64(42),
+					Name:  "uint64s",
+					Value: uint64(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -665,9 +656,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uints",
-					Format: "i64",
-					Value:  uint(42),
+					Name:  "uints",
+					Value: uint(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -681,9 +671,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "float32s",
-					Format: "f32",
-					Value:  float32(42),
+					Name:  "float32s",
+					Value: float32(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -697,9 +686,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "float64s",
-					Format: "f64",
-					Value:  float64(42),
+					Name:  "float64s",
+					Value: float64(42),
 				},
 			},
 			htype: ASCII_TBL,
@@ -710,13 +698,29 @@ func TestTableRW(t *testing.T) {
 			},
 		},
 		// binary table
+		// { // FIXME
+		// 	name: "new.fits",
+		// 	cols: []Column{
+		// 		{
+		// 			Name:   "bools",
+		// 			//Format: "L",
+		// 			Value:  false,
+		// 		},
+		// 	},
+		// 	htype: BINARY_TBL,
+		// 	table: []bool{
+		// 		true, true, true, true,
+		// 		false, false, false, false,
+		// 		true, false, true, false,
+		// 		false, true, false, true,
+		// 	},
+		// },
 		{
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int8s",
-					Format: "i8",
-					Value:  int8(42),
+					Name:  "int8s",
+					Value: int8(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -730,9 +734,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int16s",
-					Format: "i16",
-					Value:  int16(42),
+					Name:  "int16s",
+					Value: int16(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -746,9 +749,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int32s",
-					Format: "i32",
-					Value:  int32(42),
+					Name:  "int32s",
+					Value: int32(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -762,9 +764,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "int64s",
-					Format: "i64",
-					Value:  int64(42),
+					Name:  "int64s",
+					Value: int64(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -778,9 +779,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "ints",
-					Format: "i64",
-					Value:  int(42),
+					Name:  "ints",
+					Value: int(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -794,9 +794,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint8s",
-					Format: "b",
-					Value:  uint8(42),
+					Name:  "uint8s",
+					Value: uint8(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -810,9 +809,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint16s",
-					Format: "i16",
-					Value:  uint16(42),
+					Name:  "uint16s",
+					Value: uint16(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -826,9 +824,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint32s",
-					Format: "i32",
-					Value:  uint32(42),
+					Name:  "uint32s",
+					Value: uint32(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -842,9 +839,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uint64s",
-					Format: "i64",
-					Value:  uint64(42),
+					Name:  "uint64s",
+					Value: uint64(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -858,9 +854,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "uints",
-					Format: "i64",
-					Value:  uint(42),
+					Name:  "uints",
+					Value: uint(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -874,9 +869,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "float32s",
-					Format: "e",
-					Value:  float32(42),
+					Name:  "float32s",
+					Value: float32(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -890,9 +884,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "float64s",
-					Format: "d",
-					Value:  float64(42),
+					Name:  "float64s",
+					Value: float64(42),
 				},
 			},
 			htype: BINARY_TBL,
@@ -906,9 +899,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "cplx64s",
-					Format: "64M",
-					Value:  complex(float32(42), float32(42)),
+					Name:  "cplx64s",
+					Value: complex(float32(42), float32(42)),
 				},
 			},
 			htype: BINARY_TBL,
@@ -925,9 +917,8 @@ func TestTableRW(t *testing.T) {
 			name: "new.fits",
 			cols: []Column{
 				{
-					Name:   "cplx128s",
-					Format: "128M",
-					Value:  complex(float64(42), float64(42)),
+					Name:  "cplx128s",
+					Value: complex(float64(42), float64(42)),
 				},
 			},
 			htype: BINARY_TBL,
@@ -956,7 +947,7 @@ func TestTableRW(t *testing.T) {
 
 				tbl, err := NewTable(&f, "test", table.cols, table.htype)
 				if err != nil {
-					t.Fatalf("error creating new table: %v", err)
+					t.Fatalf("error creating new table: %v (%v)", err, table.cols[0].Name)
 				}
 				defer tbl.Close()
 

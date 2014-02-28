@@ -386,14 +386,30 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 
 		card = get("TSCAL", ii)
 		if card != nil {
-			col.Bscale = card.Value.(float64)
+			switch vv := card.Value.(type) {
+			case float64:
+				col.Bscale = vv
+			case int64:
+				col.Bscale = float64(vv)
+			default:
+				panic(fmt.Errorf("unhandled type [%T]", vv))
+			}
+			//col.Bscale = card.Value.(float64)
 		} else {
 			col.Bscale = 1.0
 		}
 
 		card = get("TZERO", ii)
 		if card != nil {
-			col.Bzero = card.Value.(float64)
+			switch vv := card.Value.(type) {
+			case float64:
+				col.Bzero = vv
+			case int64:
+				col.Bzero = float64(vv)
+			default:
+				panic(fmt.Errorf("unhandled type [%T]", vv))
+			}
+			//col.Bzero = card.Value.(float64)
 		} else {
 			col.Bzero = 0.0
 		}

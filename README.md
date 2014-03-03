@@ -88,4 +88,5 @@ func dumpFitsTable(fname string) {
 - ``[DONE]`` add support for writing tables from structs
 - ``[DONE]`` add support for writing tables from maps
 - ``[DONE]`` add support for variable length array
+- provide benchmarks _wrt_ ``CFITSIO``
 

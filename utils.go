@@ -37,6 +37,18 @@ func getLongValueString(f *File, key string) (string, error) {
 // it returns "" if there is no corresponding FITS format.
 func gotype2FITS(v interface{}, hdu HDUType) string {
 	rt := reflect.TypeOf(v)
+	hdr := ""
+	switch rt.Kind() {
+	case reflect.Slice:
+		hdr = "Q"
+		rt = rt.Elem()
+	case reflect.Array:
+		hdr = "Q"
+		rt = rt.Elem()
+	default:
+		// no-op
+	}
+
 	t, ok := g_gotype2FITS[rt.Kind()]
 	if !ok {
 		return ""
@@ -45,7 +57,7 @@ func gotype2FITS(v interface{}, hdu HDUType) string {
 	if !ok {
 		return ""
 	}
-	return fitsfmt
+	return hdr + fitsfmt
 }
 
 var g_gotype2FITS = map[reflect.Kind]map[HDUType]string{

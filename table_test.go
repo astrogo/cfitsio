@@ -492,7 +492,7 @@ func TestTableScanStruct(t *testing.T) {
 	}
 }
 
-func TestTableRW(t *testing.T) {
+func TestTableBuiltinsRW(t *testing.T) {
 
 	curdir, err := os.Getwd()
 	if err != nil {
@@ -698,23 +698,22 @@ func TestTableRW(t *testing.T) {
 			},
 		},
 		// binary table
-		// { // FIXME
-		// 	name: "new.fits",
-		// 	cols: []Column{
-		// 		{
-		// 			Name:   "bools",
-		// 			//Format: "L",
-		// 			Value:  false,
-		// 		},
-		// 	},
-		// 	htype: BINARY_TBL,
-		// 	table: []bool{
-		// 		true, true, true, true,
-		// 		false, false, false, false,
-		// 		true, false, true, false,
-		// 		false, true, false, true,
-		// 	},
-		// },
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "bools",
+					Value: false,
+				},
+			},
+			htype: BINARY_TBL,
+			table: []bool{
+				true, true, true, true,
+				false, false, false, false,
+				true, false, true, false,
+				false, true, false, true,
+			},
+		},
 		{
 			name: "new.fits",
 			cols: []Column{
@@ -926,6 +925,347 @@ func TestTableRW(t *testing.T) {
 				complex(10, 10), complex(11, 11), complex(12, 12), complex(13, 13),
 				complex(14, 14), complex(15, 15), complex(16, 16), complex(17, 17),
 				complex(18, 18), complex(19, 19), complex(10, 10), complex(11, 11),
+			},
+		},
+	} {
+		fname := fmt.Sprintf("%03d_%s", ii, table.name)
+		for _, fct := range []func(){
+			// create
+			func() {
+				f, err := Create(fname)
+				if err != nil {
+					t.Fatalf("error creating new file [%v]: %v", fname, err)
+				}
+				defer f.Close()
+
+				phdu, err := NewPrimaryHDU(&f, NewDefaultHeader())
+				if err != nil {
+					t.Fatalf("error creating PHDU: %v", err)
+				}
+				defer phdu.Close()
+
+				tbl, err := NewTable(&f, "test", table.cols, table.htype)
+				if err != nil {
+					t.Fatalf("error creating new table: %v (%v)", err, table.cols[0].Name)
+				}
+				defer tbl.Close()
+
+				rslice := reflect.ValueOf(table.table)
+				for i := 0; i < rslice.Len(); i++ {
+					data := rslice.Index(i).Addr()
+					err = tbl.Write(data.Interface())
+					if err != nil {
+						t.Fatalf("error writing row [%v]: %v", i, err)
+					}
+				}
+
+				nrows := tbl.NumRows()
+				if nrows != int64(rslice.Len()) {
+					t.Fatalf("expected num rows [%v]. got [%v] (%v)", rslice.Len(), nrows, table.cols[0].Name)
+				}
+			},
+			// read
+			func() {
+				f, err := Open(fname, ReadOnly)
+				if err != nil {
+					t.Fatalf("error opening file [%v]: %v", fname, err)
+				}
+				defer f.Close()
+
+				hdu := f.HDU(1)
+				tbl := hdu.(*Table)
+				if tbl.Name() != "test" {
+					t.Fatalf("expected table name==%q. got %q", "test", tbl.Name())
+				}
+
+				rslice := reflect.ValueOf(table.table)
+				nrows := tbl.NumRows()
+				if nrows != int64(rslice.Len()) {
+					t.Fatalf("expected num rows [%v]. got [%v]", rslice.Len(), nrows)
+				}
+
+				rows, err := tbl.Read(0, nrows)
+				if err != nil {
+					t.Fatalf("table.Read: %v", err)
+				}
+				count := int64(0)
+				for rows.Next() {
+					ref := rslice.Index(int(count)).Interface()
+					rt := reflect.TypeOf(ref)
+					data := reflect.New(rt).Elem().Interface()
+					err = rows.Scan(&data)
+					if err != nil {
+						t.Fatalf("rows.Scan: %v", err)
+					}
+					// check data just read in is ok
+					if !reflect.DeepEqual(data, ref) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v (%T)", ref, data, data)
+					}
+					count++
+				}
+				if count != nrows {
+					t.Fatalf("expected [%v] rows. got [%v]", nrows, count)
+				}
+			},
+		} {
+			fct()
+		}
+	}
+}
+
+func TestTableSliceRW(t *testing.T) {
+
+	curdir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.Chdir(curdir)
+
+	workdir, err := ioutil.TempDir("", "go-cfitsio-test-")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.RemoveAll(workdir)
+
+	err = os.Chdir(workdir)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	for ii, table := range []struct {
+		name  string
+		cols  []Column
+		htype HDUType
+		table interface{}
+	}{
+		// binary table
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "bools",
+					Value: []bool{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]bool{
+				{true, true, true, true},
+				{false, false, false, false},
+				{true, false, true, false},
+				{false, true, false, true},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "int8s",
+					Value: []int8{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]int8{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "int16s",
+					Value: []int16{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]int16{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "int32s",
+					Value: []int32{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]int32{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "int64s",
+					Value: []int64{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]int64{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "ints",
+					Value: []int{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]int{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "uint8s",
+					Value: []uint8{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]uint8{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "uint16s",
+					Value: []uint16{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]uint16{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "uint32s",
+					Value: []uint32{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]uint32{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "uint64s",
+					Value: []uint64{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]uint64{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "uints",
+					Value: []uint{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]uint{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "float32s",
+					Value: []float32{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]float32{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "float64s",
+					Value: []float64{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]float64{
+				{10, 11, 12, 13},
+				{14, 15, 16, 17},
+				{18, 19, 10, 11},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "cplx64s",
+					Value: []complex64{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]complex64{
+				{complex(float32(10), float32(10)), complex(float32(11), float32(11)),
+					complex(float32(12), float32(12)), complex(float32(13), float32(13))},
+				{complex(float32(14), float32(14)), complex(float32(15), float32(15)),
+					complex(float32(16), float32(16)), complex(float32(17), float32(17))},
+				{complex(float32(18), float32(18)), complex(float32(19), float32(19)),
+					complex(float32(10), float32(10)), complex(float32(11), float32(11))},
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "cplx128s",
+					Value: []complex128{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][]complex128{
+				{complex(10, 10), complex(11, 11), complex(12, 12), complex(13, 13)},
+				{complex(14, 14), complex(15, 15), complex(16, 16), complex(17, 17)},
+				{complex(18, 18), complex(19, 19), complex(10, 10), complex(11, 11)},
 			},
 		},
 	} {

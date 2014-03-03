@@ -620,7 +620,4 @@ func (col *Column) write(f *File, icol int, irow int64) error {
 	return err
 }
 
-// ColDefs is a list of Column definitions
-type ColDefs []Column
-
 // EOF

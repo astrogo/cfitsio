@@ -1384,4 +1384,154 @@ func TestTableSliceRW(t *testing.T) {
 	}
 }
 
+func TestTableStructsRW(t *testing.T) {
+
+	curdir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.Chdir(curdir)
+
+	workdir, err := ioutil.TempDir("", "go-cfitsio-test-")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	defer os.RemoveAll(workdir)
+
+	err = os.Chdir(workdir)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	type DataStruct struct {
+		A   int64     `fits:"int64"`
+		XX0 int       // hole
+		B   float64   `fits:"float64"`
+		XX1 int       // hole
+		C   []int64   `fits:"int64s"`
+		XX2 int       // hole
+		D   []float64 `fits:"float64s"`
+	}
+
+	for ii, table := range []struct {
+		name  string
+		cols  []Column
+		htype HDUType
+		table interface{}
+	}{
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "int64",
+					Value: int64(0),
+				},
+				{
+					Name:  "float64",
+					Value: float64(0),
+				},
+				{
+					Name:  "int64s",
+					Value: []int64{},
+				},
+				{
+					Name:  "float64s",
+					Value: []float64{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: []DataStruct{
+				{A: 10, B: 10, C: []int64{10, 10}, D: []float64{10, 10}},
+				{A: 11, B: 11, C: []int64{11, 11}, D: []float64{11, 11}},
+				{A: 12, B: 12, C: []int64{12, 12}, D: []float64{12, 12}},
+				{A: 13, B: 13, C: []int64{13, 13}, D: []float64{13, 13}},
+			},
+		},
+	} {
+		fname := fmt.Sprintf("%03d_%s", ii, table.name)
+		for _, fct := range []func(){
+			// create
+			func() {
+				f, err := Create(fname)
+				if err != nil {
+					t.Fatalf("error creating new file [%v]: %v", fname, err)
+				}
+				defer f.Close()
+
+				phdu, err := NewPrimaryHDU(&f, NewDefaultHeader())
+				if err != nil {
+					t.Fatalf("error creating PHDU: %v", err)
+				}
+				defer phdu.Close()
+
+				tbl, err := NewTable(&f, "test", table.cols, table.htype)
+				if err != nil {
+					t.Fatalf("error creating new table: %v (%v)", err, table.cols[0].Name)
+				}
+				defer tbl.Close()
+
+				rslice := reflect.ValueOf(table.table)
+				for i := 0; i < rslice.Len(); i++ {
+					data := rslice.Index(i).Addr()
+					err = tbl.Write(data.Interface())
+					if err != nil {
+						t.Fatalf("error writing row [%v]: %v", i, err)
+					}
+				}
+
+				nrows := tbl.NumRows()
+				if nrows != int64(rslice.Len()) {
+					t.Fatalf("expected num rows [%v]. got [%v] (%v)", rslice.Len(), nrows, table.cols[0].Name)
+				}
+			},
+			// read
+			func() {
+				f, err := Open(fname, ReadOnly)
+				if err != nil {
+					t.Fatalf("error opening file [%v]: %v", fname, err)
+				}
+				defer f.Close()
+
+				hdu := f.HDU(1)
+				tbl := hdu.(*Table)
+				if tbl.Name() != "test" {
+					t.Fatalf("expected table name==%q. got %q", "test", tbl.Name())
+				}
+
+				rslice := reflect.ValueOf(table.table)
+				nrows := tbl.NumRows()
+				if nrows != int64(rslice.Len()) {
+					t.Fatalf("expected num rows [%v]. got [%v]", rslice.Len(), nrows)
+				}
+
+				rows, err := tbl.Read(0, nrows)
+				if err != nil {
+					t.Fatalf("table.Read: %v", err)
+				}
+				count := int64(0)
+				for rows.Next() {
+					ref := rslice.Index(int(count)).Interface()
+					rt := reflect.TypeOf(ref)
+					rv := reflect.New(rt).Elem()
+					data := rv.Interface().(DataStruct)
+					err = rows.Scan(&data)
+					if err != nil {
+						t.Fatalf("rows.Scan: %v", err)
+					}
+					// check data just read in is ok
+					if !reflect.DeepEqual(data, ref) {
+						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v (%T)", ref, data, data)
+					}
+					count++
+				}
+				if count != nrows {
+					t.Fatalf("expected [%v] rows. got [%v]", nrows, count)
+				}
+			},
+		} {
+			fct()
+		}
+	}
+}
+
 // EOF

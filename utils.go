@@ -68,52 +68,52 @@ var g_gotype2FITS = map[reflect.Kind]map[HDUType]string{
 	},
 
 	reflect.Int: map[HDUType]string{
-		ASCII_TBL:  "I64",
+		ASCII_TBL:  "I21",
 		BINARY_TBL: "K",
 	},
 
 	reflect.Int8: map[HDUType]string{
-		ASCII_TBL:  "I8",
+		ASCII_TBL:  "I7",
 		BINARY_TBL: "S",
 	},
 
 	reflect.Int16: map[HDUType]string{
-		ASCII_TBL:  "I16",
+		ASCII_TBL:  "I7",
 		BINARY_TBL: "I",
 	},
 
 	reflect.Int32: map[HDUType]string{
-		ASCII_TBL:  "I32",
+		ASCII_TBL:  "I12",
 		BINARY_TBL: "J",
 	},
 
 	reflect.Int64: map[HDUType]string{
-		ASCII_TBL:  "I64",
+		ASCII_TBL:  "I21",
 		BINARY_TBL: "K",
 	},
 
 	reflect.Uint: map[HDUType]string{
-		ASCII_TBL:  "I64",
+		ASCII_TBL:  "I21",
 		BINARY_TBL: "V",
 	},
 
 	reflect.Uint8: map[HDUType]string{
-		ASCII_TBL:  "I8",
+		ASCII_TBL:  "I7",
 		BINARY_TBL: "B",
 	},
 
 	reflect.Uint16: map[HDUType]string{
-		ASCII_TBL:  "I16",
+		ASCII_TBL:  "I7",
 		BINARY_TBL: "U",
 	},
 
 	reflect.Uint32: map[HDUType]string{
-		ASCII_TBL:  "I32",
+		ASCII_TBL:  "I12",
 		BINARY_TBL: "V",
 	},
 
 	reflect.Uint64: map[HDUType]string{
-		ASCII_TBL:  "I64",
+		ASCII_TBL:  "I21",
 		BINARY_TBL: "V",
 	},
 
@@ -123,12 +123,12 @@ var g_gotype2FITS = map[reflect.Kind]map[HDUType]string{
 	},
 
 	reflect.Float32: map[HDUType]string{
-		ASCII_TBL:  "F32",
+		ASCII_TBL:  "E26.17", // must write as float64 since we can only read as such
 		BINARY_TBL: "E",
 	},
 
 	reflect.Float64: map[HDUType]string{
-		ASCII_TBL:  "F64",
+		ASCII_TBL:  "E26.17",
 		BINARY_TBL: "D",
 	},
 

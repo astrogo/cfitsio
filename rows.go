@@ -118,12 +118,21 @@ func (rows *Rows) scanMap(data map[string]interface{}) error {
 	var err error
 
 	icols := make([]int, 0, len(data))
-	for k := range data {
-		icol := rows.table.Index(k)
-		if icol >= 0 {
-			icols = append(icols, icol)
+	switch len(data) {
+	case 0:
+		icols = make([]int, len(rows.cols))
+		for i := range rows.cols {
+			icols[i] = i
+		}
+	default:
+		for k := range data {
+			icol := rows.table.Index(k)
+			if icol >= 0 {
+				icols = append(icols, icol)
+			}
 		}
 	}
+
 	for _, icol := range icols {
 		col := rows.table.Col(icol)
 		err = col.read(rows.table.f, icol, rows.cur, &col.Value)

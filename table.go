@@ -582,6 +582,20 @@ func (hdu *Table) Write(args ...interface{}) error {
 
 func (hdu *Table) writeMap(irow int64, data map[string]interface{}) error {
 	var err error
+
+	for k, v := range data {
+		icol := hdu.Index(k)
+		if icol < 0 {
+			continue
+		}
+		col := &hdu.cols[icol]
+		col.Value = v
+		err = col.write(hdu.f, icol, irow)
+		if err != nil {
+			return err
+		}
+	}
+
 	return err
 }
 

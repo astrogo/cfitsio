@@ -603,9 +603,10 @@ func (hdu *Table) writeStruct(irow int64, data interface{}) error {
 	}
 
 	for _, icol := range icols {
-		vv := reflect.ValueOf(hdu.cols[icol[1]].Value)
-		vv.Field(icol[0]).Set(rv)
-		err = hdu.cols[icol[1]].write(hdu.f, icol[1], irow)
+		vv := rv.Field(icol[0])
+		col := &hdu.cols[icol[1]]
+		col.Value = vv.Interface()
+		err = col.write(hdu.f, icol[1], irow)
 		if err != nil {
 			return err
 		}

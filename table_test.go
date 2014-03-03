@@ -697,6 +697,21 @@ func TestTableBuiltinsRW(t *testing.T) {
 				18, 19, 10, 11,
 			},
 		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "strings",
+					Value: "",
+				},
+			},
+			htype: ASCII_TBL,
+			table: []string{
+				"10", "11", "12", "13",
+				"14", "15", "16", "17",
+				"18", "19", "10", "11",
+			},
+		},
 		// binary table
 		{
 			name: "new.fits",
@@ -925,6 +940,21 @@ func TestTableBuiltinsRW(t *testing.T) {
 				complex(10, 10), complex(11, 11), complex(12, 12), complex(13, 13),
 				complex(14, 14), complex(15, 15), complex(16, 16), complex(17, 17),
 				complex(18, 18), complex(19, 19), complex(10, 10), complex(11, 11),
+			},
+		},
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "strings",
+					Value: "",
+				},
+			},
+			htype: BINARY_TBL,
+			table: []string{
+				"10", "11", "12", "13",
+				"14", "15", "16", "17",
+				"18", "19", "10", "11",
 			},
 		},
 	} {

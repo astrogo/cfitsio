@@ -179,7 +179,7 @@ var g_gotype2FITS = map[reflect.Kind]map[HDUType]string{
 
 	reflect.String: map[HDUType]string{
 		ASCII_TBL:  "A80",
-		BINARY_TBL: "A",
+		BINARY_TBL: "80A",
 	},
 
 	reflect.Struct: map[HDUType]string{

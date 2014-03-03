@@ -170,7 +170,7 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 		// FIXME: get correct maximum size from card
 		c_value := C.CStringN(C.FLEN_FILENAME)
 		defer C.free(unsafe.Pointer(c_value))
-		c_ptr := unsafe.Pointer(c_value)
+		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = C.GoString(c_value)
 
@@ -516,7 +516,7 @@ func (col *Column) write(f *File, icol int, irow int64) error {
 		c_type = C.TSTRING
 		c_value := C.CString(value)
 		defer C.free(unsafe.Pointer(c_value))
-		c_ptr := unsafe.Pointer(c_value)
+		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
 	case []bool:

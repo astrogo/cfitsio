@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	fits "github.com/sbinet/go-cfitsio"
@@ -22,6 +23,7 @@ Merge FITS tables into a single file/table.
 	}
 
 	outfname := flag.String("o", "out.fits", "path to merged FITS file")
+	doprofile := flag.Bool("profile", false, "enable CPU profiling")
 
 	flag.Parse()
 	if flag.NArg() < 2 {
@@ -29,6 +31,18 @@ Merge FITS tables into a single file/table.
 		os.Exit(1)
 	}
 
+	if *doprofile {
+		f, err := os.Create("cpu.prof")
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		err = pprof.StartCPUProfile(f)
+		if err != nil {
+			panic(err)
+		}
+		defer pprof.StopCPUProfile()
+	}
 	_, err := os.Stat(*outfname)
 	if err == nil {
 		err = os.Remove(*outfname)
@@ -89,7 +103,7 @@ Merge FITS tables into a single file/table.
 		}
 		irow := int64(0)
 		for rows.Next() {
-			data := make(map[string]interface{})
+			data := make(map[string]interface{}, table.NumCols())
 			err = rows.Scan(&data)
 			if err != nil {
 				panic(err)

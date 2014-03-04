@@ -11,6 +11,7 @@ import (
 	"unsafe"
 )
 
+// HDUType is the type of a "Header-Data Unit" (IMAGE_HDU, ASCII_TBL or BINARY_TBL)
 type HDUType int
 
 const (
@@ -48,6 +49,7 @@ type HDU interface {
 // hduMaker creates a HDU of correct underlying type according to Header hdr and index i
 type hduMaker func(f *File, hdr Header, i int) (HDU, error)
 
+// g_hdus is a global registry of hduMaker, indexed by HDUType (ASCII_TBL, BINARY_TBL, IMAGE_HDU)
 var g_hdus = make(map[HDUType]hduMaker)
 
 // readHDU reads the i-th HDU (index: 0-based!) from file
@@ -69,6 +71,9 @@ func (f *File) SeekHDU(hdu int, whence int) error {
 	return err
 }
 
+// seekHDU moves to a different HDU in the file, according to whence:
+// 0 means relative to origin of the file,
+// 1 means relative to current position.
 func (f *File) seekHDU(hdu int, whence int) (HDUType, error) {
 	c_htype := C.int(0)
 	c_status := C.int(0)

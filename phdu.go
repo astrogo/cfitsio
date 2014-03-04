@@ -15,6 +15,7 @@ type PrimaryHDU struct {
 	ImageHDU
 }
 
+// Name returns the value of the 'EXTNAME' Card (or "PRIMARY" if none)
 func (hdu *PrimaryHDU) Name() string {
 	card := hdu.header.Get("EXTNAME")
 	if card == nil {
@@ -23,6 +24,7 @@ func (hdu *PrimaryHDU) Name() string {
 	return card.Value.(string)
 }
 
+// Version returns the value of the 'EXTVER' Card (or 1 if none)
 func (hdu *PrimaryHDU) Version() int {
 	card := hdu.header.Get("EXTVER")
 	if card == nil {
@@ -32,6 +34,7 @@ func (hdu *PrimaryHDU) Version() int {
 	return int(rv.Int())
 }
 
+// newPrimaryHDU returns a new PrimaryHDU attached to file f.
 func newPrimaryHDU(f *File, hdr Header) (HDU, error) {
 	var err error
 	hdu := &PrimaryHDU{
@@ -43,6 +46,8 @@ func newPrimaryHDU(f *File, hdr Header) (HDU, error) {
 	return hdu, err
 }
 
+// NewPrimaryHDU creates a new PrimaryHDU with Header hdr in File f.
+// It returns an error if f already has a Primary HDU.
 func NewPrimaryHDU(f *File, hdr Header) (HDU, error) {
 	var err error
 

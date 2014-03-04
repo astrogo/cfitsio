@@ -58,13 +58,15 @@ func (h *Header) Append(cards ...Card) *Header {
 	return h
 }
 
+// Clear resets the Header to the default state.
 func (h *Header) Clear() {
 	h.slice = make([]Card, 0)
 	h.cards = make(map[string]int)
-	h.bitpix = 8
+	h.bitpix = 0
 	h.axes = make([]int64, 0)
 }
 
+// Get returns the Card with name n or nil if it doesn't exist.
 func (h *Header) Get(n string) *Card {
 	idx, ok := h.cards[n]
 	if ok {
@@ -73,6 +75,7 @@ func (h *Header) Get(n string) *Card {
 	return nil
 }
 
+// Comment returns the whole comment string for this Header.
 func (h *Header) Comment() string {
 	card := h.Get("COMMENT")
 	if card != nil {
@@ -81,6 +84,7 @@ func (h *Header) Comment() string {
 	return ""
 }
 
+// History returns the whole history string for this Header.
 func (h *Header) History() string {
 	card := h.Get("HISTORY")
 	if card != nil {
@@ -89,14 +93,17 @@ func (h *Header) History() string {
 	return ""
 }
 
+// Bitpix returns the bitpix value.
 func (h *Header) Bitpix() int64 {
 	return h.bitpix
 }
 
+// Axes returns the axes for this Header.
 func (h *Header) Axes() []int64 {
 	return h.axes
 }
 
+// Index returns the index of the Card with name n, or -1 if it doesn't exist
 func (h *Header) Index(n string) int {
 	idx, ok := h.cards[n]
 	if ok {
@@ -105,6 +112,7 @@ func (h *Header) Index(n string) int {
 	return -1
 }
 
+// Keys returns the name of all the Cards of this Header.
 func (h *Header) Keys() []string {
 	keys := make([]string, 0, len(h.slice))
 	for i := range h.slice {
@@ -113,15 +121,22 @@ func (h *Header) Keys() []string {
 	return keys
 }
 
+// Set modifies the value and comment of a Card with name n.
 func (h *Header) Set(n string, v interface{}, comment string) {
 	card := h.Get(n)
 	if card == nil {
-		panic(fmt.Errorf("Header.Set: no such card name %q", n))
+		h.Append(Card{
+			Name:    n,
+			Value:   v,
+			Comment: comment,
+		})
+	} else {
+		card.Value = v
+		card.Comment = comment
 	}
-	card.Value = v
-	card.Comment = comment
 }
 
+// readHeader returns the Header i from file f
 func readHeader(f *File, i int) (Header, error) {
 	var err error
 	var hdr Header

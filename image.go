@@ -208,6 +208,8 @@ func (hdu *ImageHDU) Write(data interface{}) error {
 	return err
 }
 
+// newImageHDU returns the i-th HDU from file f.
+// if i==0, the returned ImageHDU is actually the primary HDU.
 func newImageHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 	switch i {
 	case 0:

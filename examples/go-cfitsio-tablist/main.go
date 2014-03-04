@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"reflect"
+	"strings"
 
 	cfitsio "github.com/sbinet/go-cfitsio"
 )
@@ -67,25 +67,25 @@ Display formats can be modified with the TDISPn keywords.
 		os.Exit(1)
 	}
 	w := os.Stdout
+	hdrline := strings.Repeat("=", 80-15)
+	maxname := 10
+	for _, col := range table.Cols() {
+		if len(col.Name) > maxname {
+			maxname = len(col.Name)
+		}
+	}
+	rowfmt := fmt.Sprintf("%%-%ds | %%v\n", maxname)
 	for irow := 0; rows.Next(); irow++ {
 		err = rows.Scan()
 		if err != nil {
 			fmt.Printf("Error: (row=%v) %v\n", irow, err)
 		}
-		if irow == 0 {
-			fmt.Fprintf(w, "\n[row]")
-			for _, col := range table.Cols() {
-				fmt.Fprintf(w, " %10s ", col.Name)
-			}
-			fmt.Fprintf(w, "\n")
-		}
-		fmt.Fprintf(w, "%05d", irow)
+		fmt.Fprintf(w, "== %05d/%05d %s\n", irow, nrows, hdrline)
 		for _, col := range table.Cols() {
-			rv := reflect.ValueOf(col.Value).Convert(reflect.TypeOf(float64(0)))
-			fmt.Fprintf(w, " %+8.4E", rv.Float())
+			fmt.Fprintf(w, rowfmt, col.Name, col.Value)
 		}
-		fmt.Fprintf(w, "\n")
 	}
+
 	err = rows.Err()
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

@@ -73,7 +73,7 @@ func TestAsciiTbl(t *testing.T) {
 	}
 
 	buf := bytes.NewBuffer(nil)
-	err = f.WriteHDU(buf)
+	err = WriteHDU(buf, &f)
 	if err != nil {
 		t.Fatalf("error write-hdu: %v", err)
 	}
@@ -218,7 +218,7 @@ func TestBinTable(t *testing.T) {
 	}
 
 	buf := bytes.NewBuffer(nil)
-	err = f.WriteHDU(buf)
+	err = WriteHDU(buf, &f)
 	if err != nil {
 		t.Fatalf("error write-hdu: %v", err)
 	}

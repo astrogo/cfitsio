@@ -15,19 +15,23 @@ type ImageHDU struct {
 	header Header
 }
 
+// Close closes this HDU, cleaning up cycles for the proper garbage collection.
 func (hdu *ImageHDU) Close() error {
 	hdu.f = nil
 	return nil
 }
 
+// Header returns the Header part of this "Header Data-Unit" block.
 func (hdu *ImageHDU) Header() Header {
 	return hdu.header
 }
 
+// Type returns the HDUType for this HDU.
 func (hdu *ImageHDU) Type() HDUType {
 	return hdu.header.htype
 }
 
+// Name returns the value of the 'EXTNAME' Card (or "" if none)
 func (hdu *ImageHDU) Name() string {
 	card := hdu.header.Get("EXTNAME")
 	if card == nil {
@@ -36,6 +40,7 @@ func (hdu *ImageHDU) Name() string {
 	return card.Value.(string)
 }
 
+// Version returns the value of the 'EXTVER' Card (or 1 if none)
 func (hdu *ImageHDU) Version() int {
 	card := hdu.header.Get("EXTVER")
 	if card == nil {
@@ -44,8 +49,12 @@ func (hdu *ImageHDU) Version() int {
 	return card.Value.(int)
 }
 
+// Data loads the image data associated with this HDU into data, which should
+// be a pointer to a slice []T.
+// cfitsio will return an error if the image payload can not be converted into Ts.
+// It panics if data isn't addressable.
 func (hdu *ImageHDU) Data(data interface{}) error {
-	//rt := reflect.TypeOf(data)
+
 	rv := reflect.ValueOf(data).Elem()
 	if !rv.CanAddr() {
 		return fmt.Errorf("%T is not addressable", data)
@@ -55,6 +64,7 @@ func (hdu *ImageHDU) Data(data interface{}) error {
 	return err
 }
 
+// load loads the image data associated with this HDU into v.
 func (hdu *ImageHDU) load(v reflect.Value) error {
 	var err error
 	hdr := hdu.Header()
@@ -126,6 +136,7 @@ func (hdu *ImageHDU) load(v reflect.Value) error {
 }
 
 // Write writes the image to disk
+// data should be a pointer to a slice []T.
 func (hdu *ImageHDU) Write(data interface{}) error {
 	var err error
 	rv := reflect.ValueOf(data).Elem()
@@ -197,6 +208,8 @@ func (hdu *ImageHDU) Write(data interface{}) error {
 	return err
 }
 
+// newImageHDU returns the i-th HDU from file f.
+// if i==0, the returned ImageHDU is actually the primary HDU.
 func newImageHDU(f *File, hdr Header, i int) (hdu HDU, err error) {
 	switch i {
 	case 0:

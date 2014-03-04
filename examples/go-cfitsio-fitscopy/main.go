@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	cfitsio "github.com/sbinet/go-cfitsio"
+	fits "github.com/sbinet/go-cfitsio"
 )
 
 func main() {
@@ -49,14 +49,14 @@ in single quote characters on the Unix command line.
 	}
 
 	// open input file
-	in, err := cfitsio.Open(flag.Arg(0), cfitsio.ReadOnly)
+	in, err := fits.Open(flag.Arg(0), fits.ReadOnly)
 	if err != nil {
 		panic(err)
 	}
 	defer in.Close()
 
 	// create output file
-	out, err := cfitsio.Create(flag.Arg(1))
+	out, err := fits.Create(flag.Arg(1))
 	if err != nil {
 		panic(err)
 	}
@@ -68,9 +68,9 @@ in single quote characters on the Unix command line.
 		if err != nil {
 			break
 		}
-		err = in.CopyHDU(&out, 0)
+		err = fits.CopyHDU(&out, &in, 0)
 	}
-	if err != nil && err != cfitsio.END_OF_FILE {
+	if err != nil && err != fits.END_OF_FILE {
 		panic(err)
 	}
 }

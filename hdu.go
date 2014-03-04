@@ -11,6 +11,7 @@ import (
 	"unsafe"
 )
 
+// HDUType is the type of a "Header-Data Unit" (IMAGE_HDU, ASCII_TBL or BINARY_TBL)
 type HDUType int
 
 const (
@@ -48,6 +49,7 @@ type HDU interface {
 // hduMaker creates a HDU of correct underlying type according to Header hdr and index i
 type hduMaker func(f *File, hdr Header, i int) (HDU, error)
 
+// g_hdus is a global registry of hduMaker, indexed by HDUType (ASCII_TBL, BINARY_TBL, IMAGE_HDU)
 var g_hdus = make(map[HDUType]hduMaker)
 
 // readHDU reads the i-th HDU (index: 0-based!) from file
@@ -69,6 +71,9 @@ func (f *File) SeekHDU(hdu int, whence int) error {
 	return err
 }
 
+// seekHDU moves to a different HDU in the file, according to whence:
+// 0 means relative to origin of the file,
+// 1 means relative to current position.
 func (f *File) seekHDU(hdu int, whence int) (HDUType, error) {
 	c_htype := C.int(0)
 	c_status := C.int(0)
@@ -173,19 +178,19 @@ func (f *File) Copy(out *File, previous, current, following bool) error {
 	return nil
 }
 
-// Copy the current HDU from the FITS file associated with infptr and append it to the end of the FITS file associated with outfptr. Space may be reserved for MOREKEYS additional keywords in the output header.
-func (f *File) CopyHDU(out *File, morekeys int) error {
+// CopyHDU copies the current HDU from the FITS file associated with infptr and append it to the end of the FITS file associated with outfptr. Space may be reserved for MOREKEYS additional keywords in the output header.
+func CopyHDU(dst, src *File, morekeys int) error {
 	c_morekeys := C.int(morekeys)
 	c_status := C.int(0)
-	C.fits_copy_hdu(f.c, out.c, c_morekeys, &c_status)
+	C.fits_copy_hdu(src.c, dst.c, c_morekeys, &c_status)
 	if c_status > 0 {
 		return to_err(c_status)
 	}
 	return nil
 }
 
-// Write the current HDU in the input FITS file to the output FILE stream (e.g., to stdout).
-func (f *File) WriteHDU(w io.Writer) error {
+// WriteHDU writes the current HDU in the input FITS file to the output FILE stream (e.g. stdout).
+func WriteHDU(w io.Writer, src *File) error {
 	tmp, err := ioutil.TempFile("", "go-cfitsio-")
 	if err != nil {
 		return err
@@ -200,7 +205,7 @@ func (f *File) WriteHDU(w io.Writer) error {
 	defer C.free(unsafe.Pointer(c_mode))
 	fstream := C.fopen(c_name, c_mode)
 	c_status := C.int(0)
-	C.fits_write_hdu(f.c, fstream, &c_status)
+	C.fits_write_hdu(src.c, fstream, &c_status)
 	if c_status > 0 {
 		return to_err(c_status)
 	}
@@ -215,27 +220,6 @@ func (f *File) WriteHDU(w io.Writer) error {
 
 	_, err = io.Copy(w, tmp)
 	return err
-}
-
-// Copy the header (and not the data) from the CHDU associated with infptr to the CHDU associated with outfptr. If the current output HDU is not completely empty, then the CHDU will be closed and a new HDU will be appended to the output file. An empty output data unit will be created with all values initially = 0).
-func (f *File) CopyHeader(out *File) error {
-	c_status := C.int(0)
-	C.fits_copy_header(f.c, out.c, &c_status)
-	if c_status > 0 {
-		return to_err(c_status)
-	}
-	return nil
-}
-
-// Delete the CHDU in the FITS file. Any following HDUs will be shifted forward in the file, to fill in the gap created by the deleted HDU. In the case of deleting the primary array (the first HDU in the file) then the current primary array will be replace by a null primary array containing the minimum set of required keywords and no data. If there are more extensions in the file following the one that is deleted, then the the CHDU will be redefined to point to the following extension. If there are no following extensions then the CHDU will be redefined to point to the previous HDU. The output hdutype parameter returns the type of the new CHDU. A null pointer may be given for hdutype if the returned value is not needed.
-func (f *File) DeleteHDU() (HDUType, error) {
-	c_hdu := C.int(0)
-	c_status := C.int(0)
-	C.fits_delete_hdu(f.c, &c_hdu, &c_status)
-	if c_status > 0 {
-		return 0, to_err(c_status)
-	}
-	return HDUType(c_hdu), nil
 }
 
 // EOF

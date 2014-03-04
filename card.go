@@ -10,84 +10,14 @@ import (
 	"unsafe"
 )
 
-type CardType int
-
-const (
-	TYP_STRUC_KEY  CardType = C.TYP_STRUC_KEY
-	TYP_CMPRS_KEY  CardType = C.TYP_CMPRS_KEY
-	TYP_SCAL_KEY   CardType = C.TYP_SCAL_KEY
-	TYP_NULL_KEY   CardType = C.TYP_NULL_KEY
-	TYP_DIM_KEY    CardType = C.TYP_DIM_KEY
-	TYP_RANG_KEY   CardType = C.TYP_RANG_KEY
-	TYP_UNIT_KEY   CardType = C.TYP_UNIT_KEY
-	TYP_DISP_KEY   CardType = C.TYP_DISP_KEY
-	TYP_HDUID_KEY  CardType = C.TYP_HDUID_KEY
-	TYP_CKSUM_KEY  CardType = C.TYP_CKSUM_KEY
-	TYP_WCS_KEY    CardType = C.TYP_WCS_KEY
-	TYP_REFSYS_KEY CardType = C.TYP_REFSYS_KEY
-	TYP_COMM_KEY   CardType = C.TYP_COMM_KEY
-	TYP_CONT_KEY   CardType = C.TYP_CONT_KEY
-	TYP_USER_KEY   CardType = C.TYP_USER_KEY
-)
-
-func (k CardType) String() string {
-	switch k {
-	case TYP_STRUC_KEY:
-		return "TYP_STRUC_KEY"
-
-	case TYP_CMPRS_KEY:
-		return "TYP_CMPRS_KEY"
-
-	case TYP_SCAL_KEY:
-		return "TYP_SCAL_KEY"
-
-	case TYP_NULL_KEY:
-		return "TYP_NULL_KEY"
-
-	case TYP_DIM_KEY:
-		return "TYP_DIM_KEY"
-
-	case TYP_RANG_KEY:
-		return "TYP_RANG_KEY"
-
-	case TYP_UNIT_KEY:
-		return "TYP_UNIT_KEY"
-
-	case TYP_DISP_KEY:
-		return "TYP_DISP_KEY"
-
-	case TYP_HDUID_KEY:
-		return "TYP_HDUID_KEY"
-
-	case TYP_CKSUM_KEY:
-		return "TYP_CKSUM_KEY"
-
-	case TYP_WCS_KEY:
-		return "TYP_WCS_KEY"
-
-	case TYP_REFSYS_KEY:
-		return "TYP_REFSYS_KEY"
-
-	case TYP_COMM_KEY:
-		return "TYP_COMM_KEY"
-
-	case TYP_CONT_KEY:
-		return "TYP_CONT_KEY"
-
-	case TYP_USER_KEY:
-		return "TYP_USER_KEY"
-
-	default:
-		panic(fmt.Errorf("invalid CardType value (%v)", int(k)))
-	}
-}
-
+// Card is a record block (meta data) in a Header.
 type Card struct {
 	Name    string
 	Value   interface{}
 	Comment string
 }
 
+// newCard returns the i-th Card from the current HDU of file f.
 func newCard(f *File, i int) (Card, error) {
 	var card Card
 	var err error
@@ -122,9 +52,9 @@ func newCard(f *File, i int) (Card, error) {
 	}
 	comment := C.GoString(c_com)
 
-	keyclass := CardType(C.fits_get_keyclass(c_key))
+	keyclass := C.fits_get_keyclass(c_key)
 	switch keyclass {
-	case TYP_COMM_KEY, TYP_CONT_KEY:
+	case C.TYP_COMM_KEY, C.TYP_CONT_KEY:
 		return card, fmt.Errorf("comm key | continue key")
 	}
 

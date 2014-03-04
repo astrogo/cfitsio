@@ -68,6 +68,14 @@ func NewPrimaryHDU(f *File, hdr Header) (HDU, error) {
 		var c_ptr unsafe.Pointer
 
 		switch v := card.Value.(type) {
+		case bool:
+			c_type = C.TLOGICAL
+			c_value := C.char(0) // 'F'
+			if v {
+				c_value = 1 // 'T'
+			}
+			c_ptr = unsafe.Pointer(&c_value)
+
 		case byte:
 			c_type = C.TBYTE
 			c_ptr = unsafe.Pointer(&v)

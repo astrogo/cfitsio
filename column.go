@@ -28,6 +28,7 @@ type Column struct {
 	Value   Value   // value at current row
 }
 
+// inferFormat infers the FITS format associated with a Column, according to its HDUType and Go type.
 func (col *Column) inferFormat(htype HDUType) error {
 	var err error
 	if col.Format != "" {
@@ -42,6 +43,8 @@ func (col *Column) inferFormat(htype HDUType) error {
 	return err
 }
 
+// read reads the value at column number icol and row irow, into ptr.
+// icol and irow are 0-based indices.
 func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 	var err error
 
@@ -412,6 +415,8 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 	return err
 }
 
+// write writes the current value of this Column into file f at column icol and row irow.
+// icol and irow are 0-based indices.
 func (col *Column) write(f *File, icol int, irow int64) error {
 	var err error
 

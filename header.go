@@ -16,6 +16,7 @@ type Header struct {
 	axes   []int64 // dimensions of image data array
 }
 
+// NewHeader creates a Header from a set of Cards, HDUType, bitpix and axes.
 func NewHeader(cards []Card, htype HDUType, bitpix int64, axes []int64) Header {
 	hdr := Header{
 		slice:  make([]Card, 0, len(cards)),
@@ -29,6 +30,8 @@ func NewHeader(cards []Card, htype HDUType, bitpix int64, axes []int64) Header {
 	return hdr
 }
 
+// NewDefaultHeader creates a Header with CFITSIO default Cards, of type IMAGE_HDU and
+// bitpix=8, no axes.
 func NewDefaultHeader() Header {
 	return NewHeader(
 		[]Card{},
@@ -46,6 +49,7 @@ func (h *Header) AddHistory(v string) {
 	panic("not implemented")
 }
 
+// Append appends a set of Cards to this Header
 func (h *Header) Append(cards ...Card) *Header {
 	h.slice = append(h.slice, cards...)
 	for i := range h.slice {

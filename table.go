@@ -649,6 +649,64 @@ func (hdu *Table) write(irow int64, args ...interface{}) error {
 	return err
 }
 
+// CopyTable copies all the rows from src into dst.
+func CopyTable(dst, src *Table) error {
+	return CopyTableRange(dst, src, 0, src.NumRows())
+}
+
+// CopyTableRange copies the rows interval [beg,end) from src into dst
+func CopyTableRange(dst, src *Table, beg, end int64) error {
+	var err error
+	if dst == nil {
+		return fmt.Errorf("cfitsio: dst pointer is nil")
+	}
+	if src == nil {
+		return fmt.Errorf("cfitsio: src pointer is nil")
+	}
+
+	defer func() {
+		// update nrows
+		c_nrows := C.long(0)
+		c_status := C.int(0)
+		C.fits_get_num_rows(dst.f.c, &c_nrows, &c_status)
+		if c_status > 0 {
+			return
+		}
+		dst.nrows = int64(c_nrows)
+	}()
+
+	err = dst.seekHDU()
+	if err != nil {
+		return err
+	}
+	err = src.seekHDU()
+	if err != nil {
+		return err
+	}
+
+	hdr := src.Header()
+	buf := make([]byte, int(hdr.Axes()[0]))
+	slice := (*reflect.SliceHeader)((unsafe.Pointer(&buf)))
+	c_ptr := (*C.uchar)(unsafe.Pointer(slice.Data))
+	c_len := C.LONGLONG(len(buf))
+	c_orow := C.LONGLONG(dst.nrows)
+	for irow := beg; irow < end; irow++ {
+		c_status := C.int(0)
+		c_row := C.LONGLONG(irow) + 1 // from 0-based to 1-based index
+		C.fits_read_tblbytes(src.f.c, c_row, 1, c_len, c_ptr, &c_status)
+		if c_status > 0 {
+			return to_err(c_status)
+		}
+
+		C.fits_write_tblbytes(dst.f.c, c_orow+c_row, 1, c_len, c_ptr, &c_status)
+		if c_status > 0 {
+			return to_err(c_status)
+		}
+	}
+
+	return err
+}
+
 func init() {
 	g_hdus[ASCII_TBL] = newTable
 	g_hdus[BINARY_TBL] = newTable

@@ -97,22 +97,10 @@ Merge FITS tables into a single file/table.
 			}
 			defer table.Close()
 		}
-		rows, err := hdu.Read(0, nrows)
+
+		err = fits.CopyTable(table, hdu)
 		if err != nil {
 			panic(err)
-		}
-		irow := int64(0)
-		for rows.Next() {
-			data := make(map[string]interface{}, table.NumCols())
-			err = rows.Scan(&data)
-			if err != nil {
-				panic(err)
-			}
-			err = table.Write(&data)
-			if err != nil {
-				panic(err)
-			}
-			irow++
 		}
 	}
 	fmt.Printf("::: merging [%d] FITS files... [done]\n", len(infiles))

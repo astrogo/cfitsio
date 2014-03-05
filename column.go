@@ -54,101 +54,103 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 	c_anynul := C.int(0)
 	c_status := C.int(0)
 
+	var value interface{}
 	rv := reflect.ValueOf(ptr).Elem()
-	value := rv.Interface()
-	switch value.(type) {
-	case bool:
+	rt := reflect.TypeOf(rv.Interface())
+
+	switch rt.Kind() {
+	case reflect.Bool:
 		c_type = C.TLOGICAL
 		c_value := C.char(0) // 'F'
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = c_value == 1
 
-	case byte:
+	case reflect.Uint8:
 		c_type = C.TBYTE
 		var c_value C.char
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = byte(c_value)
 
-	case uint16:
+	case reflect.Uint16:
 		c_type = C.TUSHORT
 		var c_value C.ushort
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = uint16(c_value)
 
-	case uint32:
+	case reflect.Uint32:
 		c_type = C.TUINT
 		var c_value C.uint
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = uint32(c_value)
 
-	case uint64:
+	case reflect.Uint64:
 		c_type = C.TULONG
 		var c_value C.ulong
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = uint64(c_value)
 
-	case uint:
+	case reflect.Uint:
 		c_type = C.TULONG
 		var c_value C.ulong
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = uint(c_value)
 
-	case int8:
+	case reflect.Int8:
 		c_type = C.TSBYTE
 		var c_value C.char
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = int8(c_value)
 
-	case int16:
+	case reflect.Int16:
 		c_type = C.TSHORT
 		var c_value C.short
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = int16(c_value)
 
-	case int32:
+	case reflect.Int32:
 		c_type = C.TINT
 		var c_value C.int
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = int32(c_value)
 
-	case int64:
+	case reflect.Int64:
 		c_type = C.TLONG
 		var c_value C.long
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = int64(c_value)
 
-	case int:
+	case reflect.Int:
 		c_type = C.TLONG
 		var c_value C.long
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = int(c_value)
 
-	case float32:
+	case reflect.Float32:
 		c_type = C.TFLOAT
 		var c_value C.float
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = float32(c_value)
 
-	case float64:
+	case reflect.Float64:
 		c_type = C.TDOUBLE
 		var c_value C.double
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = float64(c_value)
 
-	case complex64:
+	case reflect.Complex64:
 		c_type = C.TCOMPLEX
 		var c_value C.complexfloat
 		c_ptr := unsafe.Pointer(&c_value)
@@ -158,7 +160,7 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 			float32(C.cimagf(c_value)),
 		)
 
-	case complex128:
+	case reflect.Complex128:
 		c_type = C.TDBLCOMPLEX
 		var c_value C.complexdouble
 		c_ptr := unsafe.Pointer(&c_value)
@@ -168,7 +170,7 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 			float64(C.cimag(c_value)),
 		)
 
-	case string:
+	case reflect.String:
 		c_type = C.TSTRING
 		// FIXME: get correct maximum size from card
 		c_value := C.CStringN(C.FLEN_FILENAME)
@@ -177,230 +179,361 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, c_ptr, &c_anynul, &c_status)
 		value = C.GoString(c_value)
 
-	case []bool:
-		c_type = C.TLOGICAL
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]bool, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+	case reflect.Array:
+		c_len := C.LONGLONG(rt.Len())
+		switch rt.Elem().Kind() {
+		case reflect.Bool:
+			c_type = C.TLOGICAL
+			v := make([]bool, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []uint8:
-		c_type = C.TBYTE
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]uint8, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Uint8:
+			c_type = C.TBYTE
+			v := make([]uint8, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []uint16:
-		c_type = C.TUSHORT
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]uint16, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Uint16:
+			c_type = C.TUSHORT
+			v := make([]uint16, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []uint32:
-		c_type = C.TUINT
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]uint32, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Uint32:
+			c_type = C.TUINT
+			v := make([]uint32, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []uint64:
-		c_type = C.TULONG
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]uint64, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Uint64:
+			c_type = C.TULONG
+			v := make([]uint64, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []uint:
-		c_type = C.TULONG
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]uint, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Uint:
+			c_type = C.TULONG
+			v := make([]uint, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []int8:
-		c_type = C.TSBYTE
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]int8, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Int8:
+			c_type = C.TSBYTE
+			v := make([]int8, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []int16:
-		c_type = C.TSHORT
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]int16, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Int16:
+			c_type = C.TSHORT
+			v := make([]int16, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []int32:
-		c_type = C.TINT
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]int32, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Int32:
+			c_type = C.TINT
+			v := make([]int32, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []int64:
-		c_type = C.TLONG
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]int64, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Int64:
+			c_type = C.TLONG
+			v := make([]int64, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []int:
-		c_type = C.TLONG
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]int, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Int:
+			c_type = C.TLONG
+			v := make([]int, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []float32:
-		c_type = C.TFLOAT
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]float32, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Float32:
+			c_type = C.TFLOAT
+			v := make([]float32, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []float64:
-		c_type = C.TDOUBLE
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]float64, int(c_len), int(c_len))
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Float64:
+			c_type = C.TDOUBLE
+			v := make([]float64, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []complex64:
-		c_type = C.TCOMPLEX
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
-		}
-		v := make([]complex64, int(c_len), int(c_len)) // FIXME: assume same binary layout
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		case reflect.Complex64:
+			c_type = C.TCOMPLEX
+			v := make([]complex64, int(c_len), int(c_len)) // FIXME: assume same binary layout
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
 
-	case []complex128:
-		c_type = C.TDBLCOMPLEX
-		c_len := C.long(0)
-		c_off := C.long(0)
-		C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
-		if c_status > 0 {
-			err = to_err(c_status)
-			return err
+		case reflect.Complex128:
+			c_type = C.TDBLCOMPLEX
+			v := make([]complex128, int(c_len), int(c_len)) // FIXME: assume same binary layout
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		default:
+			panic(fmt.Errorf("invalid type [%T]", value))
 		}
-		v := make([]complex128, int(c_len), int(c_len)) // FIXME: assume same binary layout
-		value = v
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+	case reflect.Slice:
+		switch rt.Elem().Kind() {
+		case reflect.Bool:
+			c_type = C.TLOGICAL
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]bool, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Uint8:
+			c_type = C.TBYTE
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]uint8, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Uint16:
+			c_type = C.TUSHORT
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]uint16, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Uint32:
+			c_type = C.TUINT
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]uint32, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Uint64:
+			c_type = C.TULONG
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]uint64, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Uint:
+			c_type = C.TULONG
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]uint, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Int8:
+			c_type = C.TSBYTE
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]int8, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Int16:
+			c_type = C.TSHORT
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]int16, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Int32:
+			c_type = C.TINT
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]int32, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Int64:
+			c_type = C.TLONG
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]int64, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Int:
+			c_type = C.TLONG
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]int, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Float32:
+			c_type = C.TFLOAT
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]float32, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Float64:
+			c_type = C.TDOUBLE
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]float64, int(c_len), int(c_len))
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Complex64:
+			c_type = C.TCOMPLEX
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]complex64, int(c_len), int(c_len)) // FIXME: assume same binary layout
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+
+		case reflect.Complex128:
+			c_type = C.TDBLCOMPLEX
+			c_len := C.long(0)
+			c_off := C.long(0)
+			C.fits_read_descript(f.c, c_icol, c_irow, &c_len, &c_off, &c_status)
+			if c_status > 0 {
+				err = to_err(c_status)
+				return err
+			}
+			v := make([]complex128, int(c_len), int(c_len)) // FIXME: assume same binary layout
+			value = v
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&v)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_read_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(c_len), nil, c_ptr, &c_anynul, &c_status)
+		default:
+			panic(fmt.Errorf("invalid type [%T]", value))
+		}
 
 	default:
 		panic(fmt.Errorf("invalid type [%T]", value))
@@ -417,7 +550,7 @@ func (col *Column) read(f *File, icol int, irow int64, ptr interface{}) error {
 
 // write writes the current value of this Column into file f at column icol and row irow.
 // icol and irow are 0-based indices.
-func (col *Column) write(f *File, icol int, irow int64) error {
+func (col *Column) write(f *File, icol int, irow int64, value interface{}) error {
 	var err error
 
 	c_type := C.int(0)
@@ -425,197 +558,291 @@ func (col *Column) write(f *File, icol int, irow int64) error {
 	c_irow := C.LONGLONG(irow + 1) // 0-based to 1-based index
 	c_status := C.int(0)
 
-	switch value := col.Value.(type) {
-	case bool:
+	rv := reflect.ValueOf(value)
+	rt := reflect.TypeOf(value)
+
+	switch rt.Kind() {
+	case reflect.Bool:
 		c_type = C.TLOGICAL
 		c_value := C.char(0) // 'F'
-		if value {
+		if value.(bool) {
 			c_value = 1
 		}
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case byte:
+	case reflect.Uint8:
 		c_type = C.TBYTE
-		c_value := C.char(value)
+		c_value := C.char(value.(byte))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case uint16:
+	case reflect.Uint16:
 		c_type = C.TUSHORT
-		c_value := C.ushort(value)
+		c_value := C.ushort(value.(uint16))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case uint32:
+	case reflect.Uint32:
 		c_type = C.TUINT
-		c_value := C.uint(value)
+		c_value := C.uint(value.(uint32))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case uint64:
+	case reflect.Uint64:
 		c_type = C.TULONG
-		c_value := C.ulong(value)
+		c_value := C.ulong(value.(uint64))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case uint:
+	case reflect.Uint:
 		c_type = C.TULONG
-		c_value := C.ulong(value)
+		c_value := C.ulong(value.(uint))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case int8:
+	case reflect.Int8:
 		c_type = C.TSBYTE
-		c_value := C.char(value)
+		c_value := C.char(value.(int8))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case int16:
+	case reflect.Int16:
 		c_type = C.TSHORT
-		c_value := C.short(value)
+		c_value := C.short(value.(int16))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case int32:
+	case reflect.Int32:
 		c_type = C.TINT
-		c_value := C.int(value)
+		c_value := C.int(value.(int32))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case int64:
+	case reflect.Int64:
 		c_type = C.TLONG
-		c_value := C.long(value)
+		c_value := C.long(value.(int64))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case int:
+	case reflect.Int:
 		c_type = C.TLONG
-		c_value := C.long(value)
+		c_value := C.long(value.(int))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case float32:
+	case reflect.Float32:
 		c_type = C.TFLOAT
-		c_value := C.float(value)
+		c_value := C.float(value.(float32))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case float64:
+	case reflect.Float64:
 		c_type = C.TDOUBLE
-		c_value := C.double(value)
+		c_value := C.double(value.(float64))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case complex64:
+	case reflect.Complex64:
 		c_type = C.TCOMPLEX
+		value := value.(complex64)
 		c_ptr := unsafe.Pointer(&value) // FIXME: assumes same memory layout
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case complex128:
+	case reflect.Complex128:
 		c_type = C.TDBLCOMPLEX
+		value := value.(complex128)
 		c_ptr := unsafe.Pointer(&value) // FIXME: assumes same memory layout
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case string:
+	case reflect.String:
 		c_type = C.TSTRING
-		c_value := C.CString(value)
+		c_value := C.CString(value.(string))
 		defer C.free(unsafe.Pointer(c_value))
 		c_ptr := unsafe.Pointer(&c_value)
 		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, 1, c_ptr, &c_status)
 
-	case []bool:
-		c_type = C.TLOGICAL
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+	case reflect.Slice:
+		switch rt.Elem().Kind() {
+		case reflect.Bool:
+			c_type = C.TLOGICAL
+			value := value.([]bool)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []uint8:
-		c_type = C.TBYTE
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Uint8:
+			c_type = C.TBYTE
+			value := value.([]uint8)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []uint16:
-		c_type = C.TUSHORT
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Uint16:
+			c_type = C.TUSHORT
+			value := value.([]uint16)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []uint32:
-		c_type = C.TUINT
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Uint32:
+			c_type = C.TUINT
+			value := value.([]uint32)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []uint64:
-		c_type = C.TULONG
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Uint64:
+			c_type = C.TULONG
+			value := value.([]uint64)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []uint:
-		c_type = C.TULONG
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Uint:
+			c_type = C.TULONG
+			value := value.([]uint)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []int8:
-		c_type = C.TSBYTE
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Int8:
+			c_type = C.TSBYTE
+			value := value.([]int8)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []int16:
-		c_type = C.TSHORT
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Int16:
+			c_type = C.TSHORT
+			value := value.([]int16)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []int32:
-		c_type = C.TINT
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Int32:
+			c_type = C.TINT
+			value := value.([]int32)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []int64:
-		c_type = C.TLONG
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Int64:
+			c_type = C.TLONG
+			value := value.([]int64)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []int:
-		c_type = C.TLONG
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Int:
+			c_type = C.TLONG
+			value := value.([]int)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []float32:
-		c_type = C.TFLOAT
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Float32:
+			c_type = C.TFLOAT
+			value := value.([]float32)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []float64:
-		c_type = C.TDOUBLE
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Float64:
+			c_type = C.TDOUBLE
+			value := value.([]float64)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value)))
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []complex64:
-		c_type = C.TCOMPLEX
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value))) // FIXME: assume same bin-layout
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Complex64:
+			c_type = C.TCOMPLEX
+			value := value.([]complex64)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value))) // FIXME: assume same bin-layout
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
 
-	case []complex128:
-		c_type = C.TDBLCOMPLEX
-		slice := (*reflect.SliceHeader)((unsafe.Pointer(&value))) // FIXME: assume same bin-layout
-		c_ptr := unsafe.Pointer(slice.Data)
-		C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		case reflect.Complex128:
+			c_type = C.TDBLCOMPLEX
+			value := value.([]complex128)
+			slice := (*reflect.SliceHeader)((unsafe.Pointer(&value))) // FIXME: assume same bin-layout
+			c_ptr := unsafe.Pointer(slice.Data)
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, C.LONGLONG(slice.Len), c_ptr, &c_status)
+		default:
+			panic(fmt.Errorf("unhandled type '%T'", value))
+		}
+
+	case reflect.Array:
+		//rp := reflect.PtrTo(rv.Type())
+		c_ptr := unsafe.Pointer(rv.Pointer())
+		c_len := C.LONGLONG(rt.Len())
+
+		switch rt.Elem().Kind() {
+		case reflect.Bool:
+			c_type = C.TLOGICAL
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Uint8:
+			c_type = C.TBYTE
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Uint16:
+			c_type = C.TUSHORT
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Uint32:
+			c_type = C.TUINT
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Uint64:
+			c_type = C.TULONG
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Uint:
+			c_type = C.TULONG
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Int8:
+			c_type = C.TSBYTE
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Int16:
+			c_type = C.TSHORT
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Int32:
+			c_type = C.TINT
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Int64:
+			c_type = C.TLONG
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Int:
+			c_type = C.TLONG
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Float32:
+			c_type = C.TFLOAT
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Float64:
+			c_type = C.TDOUBLE
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Complex64:
+			c_type = C.TCOMPLEX
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+
+		case reflect.Complex128:
+			c_type = C.TDBLCOMPLEX
+			C.fits_write_col(f.c, c_type, c_icol, c_irow, 1, c_len, c_ptr, &c_status)
+		default:
+			panic(fmt.Errorf("unhandled type '%T'", value))
+		}
 
 	default:
-		panic(fmt.Errorf("unhandled type [%T]", col.Value))
+		panic(fmt.Errorf("unhandled type '%T' (%v)", value, rt.Kind()))
 	}
 
 	if c_status > 0 {

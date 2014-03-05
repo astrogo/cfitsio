@@ -590,7 +590,7 @@ func (hdu *Table) writeMap(irow int64, data map[string]interface{}) error {
 		}
 		col := &hdu.cols[icol]
 		col.Value = v
-		err = col.write(hdu.f, icol, irow)
+		err = col.write(hdu.f, icol, irow, col.Value)
 		if err != nil {
 			return err
 		}
@@ -620,7 +620,7 @@ func (hdu *Table) writeStruct(irow int64, data interface{}) error {
 		vv := rv.Field(icol[0])
 		col := &hdu.cols[icol[1]]
 		col.Value = vv.Interface()
-		err = col.write(hdu.f, icol[1], irow)
+		err = col.write(hdu.f, icol[1], irow, col.Value)
 		if err != nil {
 			return err
 		}
@@ -641,7 +641,7 @@ func (hdu *Table) write(irow int64, args ...interface{}) error {
 		rv := reflect.ValueOf(args[i]).Elem()
 		vv := reflect.ValueOf(&col.Value).Elem()
 		vv.Set(rv)
-		err = col.write(hdu.f, i, irow)
+		err = col.write(hdu.f, i, irow, col.Value)
 		if err != nil {
 			return err
 		}
@@ -698,6 +698,7 @@ func CopyTableRange(dst, src *Table, beg, end int64) error {
 			return to_err(c_status)
 		}
 
+		fmt.Printf(">>> [%d] %v\n", irow, buf)
 		C.fits_write_tblbytes(dst.f.c, c_orow+c_row, 1, c_len, c_ptr, &c_status)
 		if c_status > 0 {
 			return to_err(c_status)

@@ -7,7 +7,7 @@ import (
 	"runtime/pprof"
 	"time"
 
-	fits "github.com/sbinet/go-cfitsio"
+	fits "github.com/astrogo/cfitsio"
 )
 
 func main() {

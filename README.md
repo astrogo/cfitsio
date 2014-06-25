@@ -1,26 +1,26 @@
-go-cfitsio
-==========
+cfitsio
+=======
 
-[![Build Status](https://drone.io/github.com/sbinet/go-cfitsio/status.png)](https://drone.io/github.com/sbinet/go-cfitsio/latest)
+[![Build Status](https://drone.io/github.com/astrogo/cfitsio/status.png)](https://drone.io/github.com/astrogo/cfitsio/latest)
 
-Naive CGo bindings for ``CFITSIO``.
+Naive CGo bindings for ``FITSIO``.
 
 ## Installation
 
 ```sh
-$ go get github.com/sbinet/go-cfitsio
+$ go get github.com/astrogo/cfitsio
 ```
 
 You, of course, need the ``C`` library ``CFITSIO`` installed and available through ``pkg-config``.
 
 ## Documentation
 
-http://godoc.org/github.com/sbinet/go-cfitsio
+http://godoc.org/github.com/astrogo/cfitsio
 
 ## Example
 
 ```go
-import fits "github.com/sbinet/go-cfitsio"
+import fits "github.com/astrogo/cfitsio"
 
 func dumpFitsTable(fname string) {
 	f, err := fits.Open(fname, fits.ReadOnly)

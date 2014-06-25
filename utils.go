@@ -62,127 +62,127 @@ func gotype2FITS(v interface{}, hdu HDUType) string {
 
 var g_gotype2FITS = map[reflect.Kind]map[HDUType]string{
 
-	reflect.Bool: map[HDUType]string{
+	reflect.Bool: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "L",
 	},
 
-	reflect.Int: map[HDUType]string{
+	reflect.Int: {
 		ASCII_TBL:  "I21",
 		BINARY_TBL: "K",
 	},
 
-	reflect.Int8: map[HDUType]string{
+	reflect.Int8: {
 		ASCII_TBL:  "I7",
 		BINARY_TBL: "S",
 	},
 
-	reflect.Int16: map[HDUType]string{
+	reflect.Int16: {
 		ASCII_TBL:  "I7",
 		BINARY_TBL: "I",
 	},
 
-	reflect.Int32: map[HDUType]string{
+	reflect.Int32: {
 		ASCII_TBL:  "I12",
 		BINARY_TBL: "J",
 	},
 
-	reflect.Int64: map[HDUType]string{
+	reflect.Int64: {
 		ASCII_TBL:  "I21",
 		BINARY_TBL: "K",
 	},
 
-	reflect.Uint: map[HDUType]string{
+	reflect.Uint: {
 		ASCII_TBL:  "I21",
 		BINARY_TBL: "V",
 	},
 
-	reflect.Uint8: map[HDUType]string{
+	reflect.Uint8: {
 		ASCII_TBL:  "I7",
 		BINARY_TBL: "B",
 	},
 
-	reflect.Uint16: map[HDUType]string{
+	reflect.Uint16: {
 		ASCII_TBL:  "I7",
 		BINARY_TBL: "U",
 	},
 
-	reflect.Uint32: map[HDUType]string{
+	reflect.Uint32: {
 		ASCII_TBL:  "I12",
 		BINARY_TBL: "V",
 	},
 
-	reflect.Uint64: map[HDUType]string{
+	reflect.Uint64: {
 		ASCII_TBL:  "I21",
 		BINARY_TBL: "V",
 	},
 
-	reflect.Uintptr: map[HDUType]string{
+	reflect.Uintptr: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.Float32: map[HDUType]string{
+	reflect.Float32: {
 		ASCII_TBL:  "E26.17", // must write as float64 since we can only read as such
 		BINARY_TBL: "E",
 	},
 
-	reflect.Float64: map[HDUType]string{
+	reflect.Float64: {
 		ASCII_TBL:  "E26.17",
 		BINARY_TBL: "D",
 	},
 
-	reflect.Complex64: map[HDUType]string{
+	reflect.Complex64: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "C",
 	},
 
-	reflect.Complex128: map[HDUType]string{
+	reflect.Complex128: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "M",
 	},
 
-	reflect.Array: map[HDUType]string{
+	reflect.Array: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.Chan: map[HDUType]string{
+	reflect.Chan: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.Func: map[HDUType]string{
+	reflect.Func: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.Interface: map[HDUType]string{
+	reflect.Interface: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.Map: map[HDUType]string{
+	reflect.Map: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.Ptr: map[HDUType]string{
+	reflect.Ptr: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.Slice: map[HDUType]string{
+	reflect.Slice: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},
 
-	reflect.String: map[HDUType]string{
+	reflect.String: {
 		ASCII_TBL:  "A80",
 		BINARY_TBL: "80A",
 	},
 
-	reflect.Struct: map[HDUType]string{
+	reflect.Struct: {
 		ASCII_TBL:  "",
 		BINARY_TBL: "",
 	},

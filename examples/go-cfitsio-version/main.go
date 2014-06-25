@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/sbinet/go-cfitsio"
+	"github.com/astrogo/cfitsio"
 )
 
 func main() {

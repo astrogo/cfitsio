@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	cfitsio "github.com/sbinet/go-cfitsio"
+	cfitsio "github.com/astrogo/cfitsio"
 )
 
 func main() {

@@ -1003,7 +1003,7 @@ func TestTableBuiltinsRW(t *testing.T) {
 					data := rslice.Index(i).Addr()
 					err = tbl.Write(data.Interface())
 					if err != nil {
-						t.Fatalf("error writing row [%v]: %v", i, err)
+						t.Fatalf("error writing row [%v]: %v (data=%v %T)", i, err, data.Interface(), data.Interface())
 					}
 				}
 
@@ -1047,7 +1047,7 @@ func TestTableBuiltinsRW(t *testing.T) {
 					}
 					// check data just read in is ok
 					if !reflect.DeepEqual(data, ref) {
-						t.Fatalf("rows.Scan:\nexpected=%v\ngot=%v (%T)", ref, data, data)
+						t.Fatalf("rows.Scan: %[3]s\nexp=%[1]v (%[1]T)\ngot=%[2]v (%[2]T)", ref, data, table.cols[0].Name)
 					}
 					count++
 				}

@@ -2028,7 +2028,7 @@ func TestTableMapsRW(t *testing.T) {
 					count++
 				}
 				if count != nrows {
-					t.Fatalf("expexcted [%v] rows. got [%v]", nrows, count)
+					t.Fatalf("expected [%v] rows. got [%v]", nrows, count)
 				}
 			},
 		} {

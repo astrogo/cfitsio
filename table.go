@@ -133,6 +133,8 @@ func govalue_from_repeat(rt reflect.Type, n int) Value {
 		rv := reflect.New(rt)
 		v = rv.Elem().Interface()
 	default:
+		// FIXME: distinguish b/w reflect.Slice and reflect.Array
+		// FIXME: use reflect.MakeArray + reflect.ArrayOf when available
 		rv := reflect.MakeSlice(reflect.SliceOf(rt), n, n)
 		v = rv.Interface()
 	}
@@ -146,6 +148,7 @@ func govalue_from_typecode(t TypeCode, n int) Value {
 		panic(fmt.Errorf("cfitsio: invalid TypeCode value [%v]", int(t)))
 
 	}
+	// FIXME: distinguish b/w reflect.Slice and reflect.Array
 	v = govalue_from_repeat(rt, n)
 	return v
 }

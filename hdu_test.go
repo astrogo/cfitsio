@@ -317,9 +317,9 @@ var g_tables = []struct {
 				// row-0
 				{
 					int16(1),
-					int16(376), float32(1000.8), float32(2.6515958), float32(19286.426),
-					float32(22999.92), float32(1001.04297), float32(1001.04297),
-					float32(88),
+					int16(376), float32(1000.8), float32(2.6515958), g_data_gross,
+					g_data_back, g_data_net, g_data_abnet,
+					g_data_epsilons,
 				},
 			},
 		},
@@ -330,25 +330,25 @@ var g_tables = []struct {
 				"NPTS":     int16(376),
 				"LAMBDA":   float32(1000.8),
 				"DELTAW":   float32(2.6515958),
-				"GROSS":    float32(19286.426),
-				"BACK":     float32(22999.92),
-				"NET":      float32(1001.04297),
-				"ABNET":    float32(1001.04297),
-				"EPSILONS": float32(88),
+				"GROSS":    g_data_gross,
+				"BACK":     g_data_back,
+				"NET":      g_data_net,
+				"ABNET":    g_data_abnet,
+				"EPSILONS": g_data_epsilons,
 			},
 		},
 		types: []interface{}{
 			nil,
 			struct {
-				Order    int16   `fits:"ORDER"`
-				Npts     int16   `fits:"NPTS"`
-				DeltaW   float32 `fits:"DELTAW"` // switch order of deltaw w/ lambda
-				Lambda   float32 `fits:"LAMBDA"`
-				Gross    float32 `fits:"GROSS"`
-				Back     float32 `fits:"BACK"`
-				Net      float32 `fits:"NET"`
-				ABNET    float32 // test w/o struct-tag
-				EPSILONS float32 // ditto
+				Order    int16     `fits:"ORDER"`
+				Npts     int16     `fits:"NPTS"`
+				DeltaW   float32   `fits:"DELTAW"` // switch order of deltaw w/ lambda
+				Lambda   float32   `fits:"LAMBDA"`
+				Gross    []float32 `fits:"GROSS"`
+				Back     []float32 `fits:"BACK"`
+				Net      []float32 `fits:"NET"`
+				ABNET    []float32 // test w/o struct-tag
+				EPSILONS []float32 // ditto
 			}{},
 		},
 	},

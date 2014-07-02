@@ -957,24 +957,24 @@ func TestTableBuiltinsRW(t *testing.T) {
 				"18", "19", "10", "11",
 			},
 		},
-		// {
-		// 	name: "new.fits",
-		// 	cols: []Column{
-		// 		{
-		// 			Name:  "float64s",
-		// 			Value: [2]float64{},
-		// 		},
-		// 	},
-		// 	htype: BINARY_TBL,
-		// 	table: [][2]float64{
-		// 		{10, 11},
-		// 		{12, 13},
-		// 		{14, 15},
-		// 		{16, 17},
-		// 		{18, 19},
-		// 		{10, 11},
-		// 	},
-		// },
+		{
+			name: "new.fits",
+			cols: []Column{
+				{
+					Name:  "float64s",
+					Value: [2]float64{},
+				},
+			},
+			htype: BINARY_TBL,
+			table: [][2]float64{
+				{10, 11},
+				{12, 13},
+				{14, 15},
+				{16, 17},
+				{18, 19},
+				{10, 11},
+			},
+		},
 	} {
 		fname := fmt.Sprintf("%03d_%s", ii, table.name)
 		for _, fct := range []func(){

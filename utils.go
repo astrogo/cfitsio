@@ -68,52 +68,52 @@ var g_gotype2FITS = map[reflect.Kind]map[HDUType]string{
 	},
 
 	reflect.Int: {
-		ASCII_TBL:  "I21",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "K",
 	},
 
 	reflect.Int8: {
-		ASCII_TBL:  "I7",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "S",
 	},
 
 	reflect.Int16: {
-		ASCII_TBL:  "I7",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "I",
 	},
 
 	reflect.Int32: {
-		ASCII_TBL:  "I12",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "J",
 	},
 
 	reflect.Int64: {
-		ASCII_TBL:  "I21",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "K",
 	},
 
 	reflect.Uint: {
-		ASCII_TBL:  "I21",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "V",
 	},
 
 	reflect.Uint8: {
-		ASCII_TBL:  "I7",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "B",
 	},
 
 	reflect.Uint16: {
-		ASCII_TBL:  "I7",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "U",
 	},
 
 	reflect.Uint32: {
-		ASCII_TBL:  "I12",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "V",
 	},
 
 	reflect.Uint64: {
-		ASCII_TBL:  "I21",
+		ASCII_TBL:  "I4",
 		BINARY_TBL: "V",
 	},
 

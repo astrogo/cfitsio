@@ -435,7 +435,9 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 			if c_status > 0 {
 				return nil, to_err(c_status)
 			}
-			col.Value = govalue_from_typecode(TypeCode(c_type))
+			col.Type = TypeCode(c_type)
+			col.Len = int(c_repeat)
+			col.Value = govalue_from_typecode(col.Type, col.Len)
 		}
 	}
 

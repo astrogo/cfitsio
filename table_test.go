@@ -1943,13 +1943,46 @@ func TestTableMapsRW(t *testing.T) {
 					Name:  "D",
 					Value: []float64{},
 				},
+				// FIXME: re-add when reflect.ArrayOf is available
+				// {
+				// 	Name:  "E",
+				// 	Value: [2]float64{},
+				// },
 			},
 			htype: BINARY_TBL,
 			table: []map[string]interface{}{
-				{"A": int64(10), "B": float64(10), "C": []int64{10, 10}, "D": []float64{10, 10}},
-				{"A": int64(11), "B": float64(11), "C": []int64{11, 11}, "D": []float64{11, 11}},
-				{"A": int64(12), "B": float64(12), "C": []int64{12, 12}, "D": []float64{12, 12}},
-				{"A": int64(13), "B": float64(13), "C": []int64{13, 13}, "D": []float64{13, 13}},
+				{
+					"A": int64(10),
+					"B": float64(10),
+					"C": []int64{10, 10},
+					"D": []float64{10, 10},
+					// FIXME: re-add when reflect.ArrayOf is available
+					// "E": [2]float64{10, 10},
+				},
+				{
+					"A": int64(11),
+					"B": float64(11),
+					"C": []int64{11, 11},
+					"D": []float64{11, 11},
+					// FIXME: re-add when reflect.ArrayOf is available
+					// "E": [2]float64{11, 11},
+				},
+				{
+					"A": int64(12),
+					"B": float64(12),
+					"C": []int64{12, 12},
+					"D": []float64{12, 12},
+					// FIXME: re-add when reflect.ArrayOf is available
+					// "E": [2]float64{12, 12},
+				},
+				{
+					"A": int64(13),
+					"B": float64(13),
+					"C": []int64{13, 13},
+					"D": []float64{13, 13},
+					// FIXME: re-add when reflect.ArrayOf is available
+					// "E": [2]float64{13, 13},
+				},
 			},
 		},
 	} {

@@ -684,6 +684,46 @@ func CopyTableRange(dst, src *Table, beg, end int64) error {
 func init() {
 	g_hdus[ASCII_TBL] = newTable
 	g_hdus[BINARY_TBL] = newTable
+	g_cfits2go = map[TypeCode]reflect.Type{
+		TBIT:        reflect.TypeOf((*byte)(nil)).Elem(),
+		TBYTE:       reflect.TypeOf((*byte)(nil)).Elem(),
+		TSBYTE:      reflect.TypeOf((*int8)(nil)).Elem(),
+		TLOGICAL:    reflect.TypeOf((*bool)(nil)).Elem(),
+		TSTRING:     reflect.TypeOf((*string)(nil)).Elem(),
+		TUSHORT:     reflect.TypeOf((*uint16)(nil)).Elem(),
+		TSHORT:      reflect.TypeOf((*int16)(nil)).Elem(),
+		TUINT:       reflect.TypeOf((*uint32)(nil)).Elem(),
+		TINT:        reflect.TypeOf((*int32)(nil)).Elem(),
+		TULONG:      reflect.TypeOf((*uint64)(nil)).Elem(),
+		TLONG:       reflect.TypeOf((*int64)(nil)).Elem(),
+		TFLOAT:      reflect.TypeOf((*float32)(nil)).Elem(),
+		TLONGLONG:   reflect.TypeOf((*int64)(nil)).Elem(),
+		TDOUBLE:     reflect.TypeOf((*float64)(nil)).Elem(),
+		TCOMPLEX:    reflect.TypeOf((*complex64)(nil)).Elem(),
+		TDBLCOMPLEX: reflect.TypeOf((*complex128)(nil)).Elem(),
+
+		TVLABIT:        reflect.TypeOf((*[]byte)(nil)).Elem(),
+		TVLABYTE:       reflect.TypeOf((*[]byte)(nil)).Elem(),
+		TVLASBYTE:      reflect.TypeOf((*[]int8)(nil)).Elem(),
+		TVLALOGICAL:    reflect.TypeOf((*[]bool)(nil)).Elem(),
+		TVLASTRING:     reflect.TypeOf((*[]string)(nil)).Elem(),
+		TVLAUSHORT:     reflect.TypeOf((*[]uint16)(nil)).Elem(),
+		TVLASHORT:      reflect.TypeOf((*[]int16)(nil)).Elem(),
+		TVLAUINT:       reflect.TypeOf((*[]uint32)(nil)).Elem(),
+		TVLAINT:        reflect.TypeOf((*[]int32)(nil)).Elem(),
+		TVLAULONG:      reflect.TypeOf((*[]uint64)(nil)).Elem(),
+		TVLALONG:       reflect.TypeOf((*[]int64)(nil)).Elem(),
+		TVLAFLOAT:      reflect.TypeOf((*[]float32)(nil)).Elem(),
+		TVLALONGLONG:   reflect.TypeOf((*[]int64)(nil)).Elem(),
+		TVLADOUBLE:     reflect.TypeOf((*[]float64)(nil)).Elem(),
+		TVLACOMPLEX:    reflect.TypeOf((*[]complex64)(nil)).Elem(),
+		TVLADBLCOMPLEX: reflect.TypeOf((*[]complex128)(nil)).Elem(),
+	}
+
+	g_go2cfits = make(map[reflect.Type]TypeCode, len(g_cfits2go))
+	for k, v := range g_cfits2go {
+		g_go2cfits[v] = k
+	}
 }
 
 // EOF

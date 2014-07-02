@@ -165,12 +165,12 @@ func (rows *Rows) scanStruct(data interface{}) error {
 
 	for _, icol := range icols {
 		col := &rows.table.cols[icol[1]]
-		err = col.read(rows.table.f, icol[1], rows.cur, &col.Value)
+		value := rv.Field(icol[0]).Addr().Interface()
+		err = col.read(rows.table.f, icol[1], rows.cur, value)
 		if err != nil {
 			return err
 		}
-		vv := reflect.ValueOf(col.Value)
-		rv.Field(icol[0]).Set(vv)
+		col.Value = rv.Field(icol[0]).Interface()
 	}
 	return err
 }

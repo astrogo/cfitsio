@@ -698,7 +698,6 @@ func CopyTableRange(dst, src *Table, beg, end int64) error {
 			return to_err(c_status)
 		}
 
-		fmt.Printf(">>> [%d] %v\n", irow, buf)
 		C.fits_write_tblbytes(dst.f.c, c_orow+c_row, 1, c_len, c_ptr, &c_status)
 		if c_status > 0 {
 			return to_err(c_status)

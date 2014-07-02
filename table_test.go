@@ -1763,13 +1763,15 @@ func TestTableStructsRW(t *testing.T) {
 	}
 
 	type DataStruct struct {
-		A   int64     `fits:"int64"`
-		XX0 int       // hole
-		B   float64   `fits:"float64"`
-		XX1 int       // hole
-		C   []int64   `fits:"int64s"`
-		XX2 int       // hole
-		D   []float64 `fits:"float64s"`
+		A   int64      `fits:"int64"`
+		XX0 int        // hole
+		B   float64    `fits:"float64"`
+		XX1 int        // hole
+		C   []int64    `fits:"int64s"`
+		XX2 int        // hole
+		D   []float64  `fits:"float64s"`
+		XX3 int        // hole
+		E   [2]float64 `fits:"arrfloat64s"`
 	}
 
 	for ii, table := range []struct {
@@ -1797,13 +1799,17 @@ func TestTableStructsRW(t *testing.T) {
 					Name:  "float64s",
 					Value: []float64{},
 				},
+				{
+					Name:  "arrfloat64s",
+					Value: [2]float64{},
+				},
 			},
 			htype: BINARY_TBL,
 			table: []DataStruct{
-				{A: 10, B: 10, C: []int64{10, 10}, D: []float64{10, 10}},
-				{A: 11, B: 11, C: []int64{11, 11}, D: []float64{11, 11}},
-				{A: 12, B: 12, C: []int64{12, 12}, D: []float64{12, 12}},
-				{A: 13, B: 13, C: []int64{13, 13}, D: []float64{13, 13}},
+				{A: 10, B: 10, C: []int64{10, 10}, D: []float64{10, 10}, E: [2]float64{10, 10}},
+				{A: 11, B: 11, C: []int64{11, 11}, D: []float64{11, 11}, E: [2]float64{11, 11}},
+				{A: 12, B: 12, C: []int64{12, 12}, D: []float64{12, 12}, E: [2]float64{12, 12}},
+				{A: 13, B: 13, C: []int64{13, 13}, D: []float64{13, 13}, E: [2]float64{13, 13}},
 			},
 		},
 	} {

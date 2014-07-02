@@ -52,132 +52,101 @@ const (
 	TVLADBLCOMPLEX TypeCode = -C.TDBLCOMPLEX
 )
 
-func govalue_from_typecode(t TypeCode) Value {
-	var v Value
-	switch t {
-	case TBIT, TBYTE:
-		var vv byte
-		v = vv
-
+func (tc TypeCode) String() string {
+	switch tc {
+	case TBIT:
+		return "TBIT"
+	case TBYTE:
+		return "TBYTE"
 	case TSBYTE:
-		var vv int8
-		v = vv
-
+		return "TSBYTE"
 	case TLOGICAL:
-		var vv bool
-		v = vv
-
+		return "TLOGICAL"
 	case TSTRING:
-		var vv string
-		v = vv
-
+		return "TSTRING"
 	case TUSHORT:
-		var vv uint16
-		v = vv
-
+		return "TUSHORT"
 	case TSHORT:
-		var vv int16
-		v = vv
-
+		return "TSHORT"
 	case TUINT:
-		var vv uint32
-		v = vv
-
+		return "TUINT"
 	case TINT:
-		var vv int32
-		v = vv
-
+		return "TINT"
 	case TULONG:
-		var vv uint64
-		v = vv
-
+		return "TULONG"
 	case TLONG:
-		var vv int64
-		v = vv
-
+		return "TLONG"
 	case TFLOAT:
-		var vv float32
-		v = vv
-
+		return "TFLOAT"
 	case TLONGLONG:
-		var vv int64
-		v = vv
-
+		return "TLONGLONG"
 	case TDOUBLE:
-		var vv float64
-		v = vv
-
+		return "TDOUBLE"
 	case TCOMPLEX:
-		var vv complex64
-		v = vv
-
+		return "TCOMPLEX"
 	case TDBLCOMPLEX:
-		var vv complex128
-		v = vv
+		return "TDBLCOMPLEX"
 
-	case TVLABIT, TVLABYTE:
-		var vv = make([]byte, 0)
-		v = vv
-
+	case TVLABIT:
+		return "TVLABIT"
+	case TVLABYTE:
+		return "TVLABYTE"
 	case TVLASBYTE:
-		var vv = make([]int8, 0)
-		v = vv
-
+		return "TVLASBYTE"
 	case TVLALOGICAL:
-		var vv = make([]bool, 0)
-		v = vv
-
+		return "TVLALOGICAL"
 	case TVLASTRING:
-		var vv = make([]string, 0)
-		v = vv
-
+		return "TVLASTRING"
 	case TVLAUSHORT:
-		var vv = make([]uint16, 0)
-		v = vv
-
+		return "TVLAUSHORT"
 	case TVLASHORT:
-		var vv = make([]int16, 0)
-		v = vv
-
+		return "TVLASHORT"
 	case TVLAUINT:
-		var vv = make([]uint32, 0)
-		v = vv
-
+		return "TVLAUINT"
 	case TVLAINT:
-		var vv = make([]int32, 0)
-		v = vv
-
+		return "TVLAINT"
 	case TVLAULONG:
-		var vv = make([]uint64, 0)
-		v = vv
-
+		return "TVLAULONG"
 	case TVLALONG:
-		var vv = make([]int64, 0)
-		v = vv
-
+		return "TVLALONG"
 	case TVLAFLOAT:
-		var vv = make([]float32, 0)
-		v = vv
-
+		return "TVLAFLOAT"
 	case TVLALONGLONG:
-		var vv = make([]int64, 0)
-		v = vv
-
+		return "TVLALONGLONG"
 	case TVLADOUBLE:
-		var vv = make([]float64, 0)
-		v = vv
-
+		return "TVLADOUBLE"
 	case TVLACOMPLEX:
-		var vv = make([]complex64, 0)
-		v = vv
-
+		return "TVLACOMPLEX"
 	case TVLADBLCOMPLEX:
-		var vv = make([]complex128, 0)
-		v = vv
-
-	default:
-		panic(fmt.Errorf("cfitsio: invalid TypeCode value [%v]", int(t)))
+		return "TVLADBLCOMPLEX"
 	}
+	panic("unreachable")
+}
+
+var g_cfits2go map[TypeCode]reflect.Type
+var g_go2cfits map[reflect.Type]TypeCode
+
+func govalue_from_repeat(rt reflect.Type, n int) Value {
+	var v Value
+	switch n {
+	case 1:
+		rv := reflect.New(rt)
+		v = rv.Elem().Interface()
+	default:
+		rv := reflect.MakeSlice(reflect.SliceOf(rt), n, n)
+		v = rv.Interface()
+	}
+	return v
+}
+
+func govalue_from_typecode(t TypeCode, n int) Value {
+	var v Value
+	rt, ok := g_cfits2go[t]
+	if !ok {
+		panic(fmt.Errorf("cfitsio: invalid TypeCode value [%v]", int(t)))
+
+	}
+	v = govalue_from_repeat(rt, n)
 	return v
 }
 

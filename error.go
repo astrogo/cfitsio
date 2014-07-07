@@ -23,6 +23,9 @@ func (err Error) Error() string {
 
 // Return a descriptive text string (30 char max.) corresponding to a CFITSIO error status code.
 func to_err(sc C.int) error {
+	if sc == 0 {
+		return nil
+	}
 	return Error(int(sc))
 }
 

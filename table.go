@@ -530,8 +530,13 @@ func NewTableFrom(f *File, name string, v Value, hdutype HDUType) (*Table, error
 		if name == "" {
 			name = ft.Name
 		}
+		n := 0
+		if ft.Type.Kind() == reflect.Array {
+			n = ft.Type.Len()
+		}
 		cols[i] = Column{
 			Name:  name,
+			Len:   n,
 			Value: rv.Field(i).Interface(),
 		}
 	}

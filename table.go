@@ -516,6 +516,28 @@ func NewTable(f *File, name string, cols []Column, hdutype HDUType) (*Table, err
 	return table, err
 }
 
+// NewTableFrom creates a new table in the given FITS file, using the struct v as schema
+func NewTableFrom(f *File, name string, v Value, hdutype HDUType) (*Table, error) {
+	rv := reflect.Indirect(reflect.ValueOf(v))
+	rt := rv.Type()
+	if rt.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("cfitsio: NewTableFrom takes a struct value. got: %#T", v)
+	}
+	cols := make([]Column, rt.NumField())
+	for i := range cols {
+		ft := rt.Field(i)
+		name := ft.Tag.Get("fits")
+		if name == "" {
+			name = ft.Name
+		}
+		cols[i] = Column{
+			Name:  name,
+			Value: rv.Field(i).Interface(),
+		}
+	}
+	return NewTable(f, name, cols, hdutype)
+}
+
 // Write writes a row to the table
 func (hdu *Table) Write(args ...interface{}) error {
 

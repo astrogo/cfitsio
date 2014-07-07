@@ -4,6 +4,7 @@ package cfitsio
 // #include "go-cfitsio-utils.h"
 import "C"
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"unsafe"
@@ -43,7 +44,7 @@ func gotype2FITS(v interface{}, hdu HDUType) string {
 		hdr = "Q"
 		rt = rt.Elem()
 	case reflect.Array:
-		hdr = "Q"
+		hdr = fmt.Sprintf("%d", rt.Len())
 		rt = rt.Elem()
 	default:
 		// no-op
@@ -57,6 +58,7 @@ func gotype2FITS(v interface{}, hdu HDUType) string {
 	if !ok {
 		return ""
 	}
+
 	return hdr + fitsfmt
 }
 

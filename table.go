@@ -154,12 +154,13 @@ func govalue_from_typecode(t TypeCode, n int) Value {
 }
 
 type Table struct {
-	f      *File
-	id     C.int
-	header Header
-	nrows  int64
-	cols   []Column
-	data   interface{}
+	f       *File
+	id      C.int
+	header  Header
+	nrows   int64
+	cols    []Column
+	col2idx map[string]int // associates a column name to its index
+	data    interface{}
 }
 
 func (hdu *Table) Close() error {
@@ -221,13 +222,11 @@ func (hdu *Table) Col(i int) *Column {
 
 // Index returns the index of the first column with name `n` or -1
 func (hdu *Table) Index(n string) int {
-	for i := range hdu.cols {
-		col := &hdu.cols[i]
-		if col.Name == n {
-			return i
-		}
+	idx, ok := hdu.col2idx[n]
+	if !ok {
+		return -1
 	}
-	return -1
+	return idx
 }
 
 func (hdu *Table) readRow(irow int64) error {
@@ -320,6 +319,7 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 
 	ncols := int(c_ncols)
 	cols := make([]Column, ncols)
+	col2idx := make(map[string]int, ncols)
 
 	get := func(str string, ii int) *Card {
 		return hdr.Get(fmt.Sprintf(str+"%d", ii+1))
@@ -339,6 +339,7 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 				return nil, to_err(c_status)
 			}
 			col.Name = C.GoString(c_name)
+			col2idx[col.Name] = ii
 		}
 
 		card := get("TFORM", ii)
@@ -442,12 +443,13 @@ func newTable(f *File, hdr Header, i int) (hdu HDU, err error) {
 	}
 
 	hdu = &Table{
-		f:      f,
-		id:     c_id,
-		header: hdr,
-		nrows:  int64(c_nrows),
-		cols:   cols,
-		data:   nil,
+		f:       f,
+		id:      c_id,
+		header:  hdr,
+		nrows:   int64(c_nrows),
+		cols:    cols,
+		col2idx: col2idx,
+		data:    nil,
 	}
 	return hdu, err
 }

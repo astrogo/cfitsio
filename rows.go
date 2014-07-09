@@ -29,6 +29,10 @@ type Rows struct {
 	cur    int64 // current row index
 	closed bool
 	err    error // last error
+
+	// cache of type -> slice of (struct-field-index,col-index)
+	// used by scanStruct
+	icols map[reflect.Type][][2]int
 }
 
 // Err returns the error, if any, that was encountered during iteration.
@@ -150,19 +154,22 @@ func (rows *Rows) scanStruct(data interface{}) error {
 
 	rt := reflect.TypeOf(data).Elem()
 	rv := reflect.ValueOf(data).Elem()
-	icols := make([][2]int, 0, rt.NumField())
-	for i := 0; i < rt.NumField(); i++ {
-		f := rt.Field(i)
-		n := f.Tag.Get("fits")
-		if n == "" {
-			n = f.Name
+	if _, ok := rows.icols[rt]; !ok {
+		icols := make([][2]int, 0, rt.NumField())
+		for i := 0; i < rt.NumField(); i++ {
+			f := rt.Field(i)
+			n := f.Tag.Get("fits")
+			if n == "" {
+				n = f.Name
+			}
+			icol := rows.table.Index(n)
+			if icol >= 0 {
+				icols = append(icols, [2]int{i, icol})
+			}
 		}
-		icol := rows.table.Index(n)
-		if icol >= 0 {
-			icols = append(icols, [2]int{i, icol})
-		}
+		rows.icols[rt] = icols
 	}
-
+	icols := rows.icols[rt]
 	for _, icol := range icols {
 		col := &rows.table.cols[icol[1]]
 		value := rv.Field(icol[0]).Addr().Interface()

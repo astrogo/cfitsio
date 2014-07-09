@@ -276,6 +276,7 @@ func (hdu *Table) ReadRange(beg, end, inc int64) (*Rows, error) {
 		inc:   inc,
 		cur:   beg - inc,
 		err:   nil,
+		icols: make(map[reflect.Type][][2]int),
 	}
 	return rows, err
 }

@@ -90,3 +90,8 @@ func dumpFitsTable(fname string) {
 - ``[DONE]`` add support for variable length array
 - provide benchmarks _wrt_ ``CFITSIO``
 
+## Contribute
+
+`astrogo/cfitsio` is released under the `BSD-3` license.
+Please send a pull request to [astrogo/license](https://github.com/astrogo/license), adding
+yourself to the `AUTHORS` and/or `CONTRIBUTORS` files.

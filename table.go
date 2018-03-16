@@ -524,7 +524,7 @@ func NewTableFrom(f *File, name string, v Value, hdutype HDUType) (*Table, error
 	rv := reflect.Indirect(reflect.ValueOf(v))
 	rt := rv.Type()
 	if rt.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("cfitsio: NewTableFrom takes a struct value. got: %#T", v)
+		return nil, fmt.Errorf("cfitsio: NewTableFrom takes a struct value. got: %T", v)
 	}
 	cols := make([]Column, rt.NumField())
 	for i := range cols {

@@ -19,7 +19,7 @@ func TestSqlDriver(t *testing.T) {
 
 	db, err = sql.Open("fits", "testdata/file001.fits[1]")
 	if err != nil {
-		t.Fatal("error opening fits file: %v\n", err)
+		t.Fatalf("error opening fits file: %v\n", err)
 	}
 	defer db.Close()
 

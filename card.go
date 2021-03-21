@@ -81,7 +81,7 @@ func parseRecord(name, value, comment string, card *Card) error {
 		value = value[1 : len(value)-1]
 	}
 
-	dtype := string(c_type)[0]
+	dtype := rune(c_type)
 	switch dtype {
 	case 'L':
 		card.Value = value == "T"

@@ -110,9 +110,19 @@ func (hdu *ImageHDU) load(v reflect.Value) error {
 		data := rv.Interface().([]int32)
 		c_ptr = unsafe.Pointer(&data[0])
 
+	case []uint32:
+		c_imgtype = C.TUINT
+		data := rv.Interface().([]uint32)
+		c_ptr = unsafe.Pointer(&data[0])
+
 	case []int64:
 		c_imgtype = C.TLONGLONG
 		data := rv.Interface().([]int64)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []uint64:
+		c_imgtype = C.TULONGLONG
+		data := rv.Interface().([]uint64)
 		c_ptr = unsafe.Pointer(&data[0])
 
 	case []float32:
@@ -191,9 +201,19 @@ func (hdu *ImageHDU) Write(data interface{}) error {
 		data := rv.Interface().([]int32)
 		c_ptr = unsafe.Pointer(&data[0])
 
+	case []uint32:
+		c_imgtype = C.TUINT
+		data := rv.Interface().([]uint32)
+		c_ptr = unsafe.Pointer(&data[0])
+
 	case []int64:
 		c_imgtype = C.TLONGLONG
 		data := rv.Interface().([]int64)
+		c_ptr = unsafe.Pointer(&data[0])
+
+	case []uint64:
+		c_imgtype = C.TULONGLONG
+		data := rv.Interface().([]uint64)
 		c_ptr = unsafe.Pointer(&data[0])
 
 	case []float32:

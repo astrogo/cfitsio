@@ -32,7 +32,7 @@ func TestImageRW(t *testing.T) {
 		version  int
 		cards    []Card
 		bitpix   int64
-		bzero    int
+		bzero    uint64
 		unsigned bool
 		axes     []int64
 		image    interface{}
@@ -105,7 +105,7 @@ func TestImageRW(t *testing.T) {
 			image: []uint16{
 				0, 1, 2, 3,
 				4, 5, 6, 7,
-				8, 9, 0, 40000,
+				8, 9, 0, math.MaxUint16,
 			},
 		},
 		{
@@ -146,12 +146,62 @@ func TestImageRW(t *testing.T) {
 					"the primary hdu version",
 				},
 			},
+			bitpix:   32,
+			bzero:    -math.MinInt32,
+			unsigned: true,
+			axes:     []int64{3, 4},
+			image: []uint32{
+				0, 1, 2, 3,
+				4, 5, 6, 7,
+				8, 9, 0, math.MaxUint32,
+			},
+		},
+		{
+			name:    "new.fits",
+			version: 2,
+			cards: []Card{
+				{
+					"EXTNAME",
+					"primary hdu",
+					"the primary HDU",
+				},
+				{
+					"EXTVER",
+					2,
+					"the primary hdu version",
+				},
+			},
 			bitpix: 64,
 			axes:   []int64{3, 4},
 			image: []int64{
 				0, 1, 2, 3,
 				4, 5, 6, 7,
 				8, 9, 0, 1,
+			},
+		},
+		{
+			name:    "new.fits",
+			version: 2,
+			cards: []Card{
+				{
+					"EXTNAME",
+					"primary hdu",
+					"the primary HDU",
+				},
+				{
+					"EXTVER",
+					2,
+					"the primary hdu version",
+				},
+			},
+			bitpix:   64,
+			bzero:    -math.MinInt64,
+			unsigned: true,
+			axes:     []int64{3, 4},
+			image: []uint64{
+				0, 1, 2, 3,
+				4, 5, 6, 7,
+				8, 9, 0, math.MaxUint64,
 			},
 		},
 		{
@@ -271,14 +321,26 @@ func TestImageRW(t *testing.T) {
 						}
 
 					case 32:
-						v := make([]int32, nelmts)
-						data = v
-						err = hdu.Data(&v)
+						if table.unsigned {
+							v := make([]uint32, nelmts)
+							data = v
+							err = hdu.Data(&v)
+						} else {
+							v := make([]int32, nelmts)
+							data = v
+							err = hdu.Data(&v)
+						}
 
 					case 64:
-						v := make([]int64, nelmts)
-						data = v
-						err = hdu.Data(&v)
+						if table.unsigned {
+							v := make([]uint64, nelmts)
+							data = v
+							err = hdu.Data(&v)
+						} else {
+							v := make([]int64, nelmts)
+							data = v
+							err = hdu.Data(&v)
+						}
 
 					case -32:
 						v := make([]float32, nelmts)

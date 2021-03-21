@@ -3,6 +3,7 @@ package cfitsio
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"reflect"
 	"testing"
@@ -27,12 +28,14 @@ func TestImageRW(t *testing.T) {
 	}
 
 	for ii, table := range []struct {
-		name    string
-		version int
-		cards   []Card
-		bitpix  int64
-		axes    []int64
-		image   interface{}
+		name     string
+		version  int
+		cards    []Card
+		bitpix   int64
+		bzero    int
+		unsigned bool
+		axes     []int64
+		image    interface{}
 	}{
 		{
 			name:    "new.fits",
@@ -78,6 +81,31 @@ func TestImageRW(t *testing.T) {
 				0, 1, 2, 3,
 				4, 5, 6, 7,
 				8, 9, 0, 1,
+			},
+		},
+		{
+			name:    "new.fits",
+			version: 2,
+			cards: []Card{
+				{
+					"EXTNAME",
+					"primary hdu",
+					"the primary HDU",
+				},
+				{
+					"EXTVER",
+					2,
+					"the primary hdu version",
+				},
+			},
+			bitpix:   16,
+			bzero:    -math.MinInt16,
+			unsigned: true,
+			axes:     []int64{3, 4},
+			image: []uint16{
+				0, 1, 2, 3,
+				4, 5, 6, 7,
+				8, 9, 0, 40000,
 			},
 		},
 		{
@@ -195,6 +223,9 @@ func TestImageRW(t *testing.T) {
 						table.bitpix,
 						table.axes,
 					)
+					if table.bzero != 0 {
+						phdr.Set("BZERO", table.bzero, "offset data range")
+					}
 					phdu, err := NewPrimaryHDU(&f, phdr)
 					if err != nil {
 						t.Fatalf("error creating PHDU: %v", err)
@@ -229,9 +260,15 @@ func TestImageRW(t *testing.T) {
 						err = hdu.Data(&v)
 
 					case 16:
-						v := make([]int16, nelmts)
-						data = v
-						err = hdu.Data(&v)
+						if table.unsigned {
+							v := make([]uint16, nelmts)
+							data = v
+							err = hdu.Data(&v)
+						} else {
+							v := make([]int16, nelmts)
+							data = v
+							err = hdu.Data(&v)
+						}
 
 					case 32:
 						v := make([]int32, nelmts)

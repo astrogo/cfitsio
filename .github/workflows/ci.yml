@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  TAGS: "-tags=ci"
+  COVERAGE: "-coverpkg=github.com/astrogo/cfitsio/..."
+
+jobs:
+
+  build:
+    name: Build
+    strategy:
+      matrix:
+        go-version: [1.16.x, 1.15.x]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+ 
+    - name: Cache-Go
+      uses: actions/cache@v1
+      with:
+        path: |
+            ~/go/pkg/mod              # Module download cache
+            ~/.cache/go-build         # Build cache (Linux)
+            ~/Library/Caches/go-build # Build cache (Mac)
+            '%LocalAppData%\go-build' # Build cache (Windows)
+
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Linux packages
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -qq pkg-config libcfitsio-bin libcfitsio-dev
+ 
+    - name: Build-Linux-64b
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        GOARCH=amd64 go install -v $TAGS ./...
+
+    - name: Test Linux
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        go run ./ci/run-tests.go $TAGS -race $COVERAGE
+
+    - name: Upload-Coverage
+      if: matrix.platform == 'ubuntu-latest'
+      uses: codecov/codecov-action@v1

@@ -1,7 +1,10 @@
 cfitsio
 =======
 
-[![Build Status](https://drone.io/github.com/astrogo/cfitsio/status.png)](https://drone.io/github.com/astrogo/cfitsio/latest)
+[![GitHub release](https://img.shields.io/github/release/astrogo/cfitsio.svg)](https://github.com/astrogo/cfitsio/releases)
+[![CI](https://github.com/astrogo/cfitsio/workflows/CI/badge.svg)](https://github.com/astrogo/cfitsio/actions)
+[![codecov](https://codecov.io/gh/astrogo/cfitsio/branch/master/graph/badge.svg)](https://codecov.io/gh/astrogo/cfitsio)
+[![GoDoc](https://godoc.org/github.com/astrogo/cfitsio?status.svg)](https://godoc.org/github.com/astrogo/cfitsio)
 
 Naive CGo bindings for ``FITSIO``.
 
